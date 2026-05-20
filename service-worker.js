@@ -1,4 +1,4 @@
-const CACHE_NAME = "yasai-harvest-app-v1";
+const CACHE_NAME = "yasai-harvest-app-v2";
 
 const FILES_TO_CACHE = [
   "./",

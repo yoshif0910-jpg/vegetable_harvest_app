@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- PWA STEP 2：manifest 読み込み -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#70cbd2">
   <meta name="mobile-web-app-capable" content="yes">
@@ -15,9 +14,7 @@
   <title>やさい収穫帳</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -48,9 +45,9 @@
       position: absolute;
       right: 16px;
       top: 18px;
-      font-size: 28px;
+      font-size: 26px;
       display: flex;
-      gap: 18px;
+      gap: 14px;
       color: #666;
     }
 
@@ -74,14 +71,16 @@
       z-index: 15;
     }
 
-    .warning-bar.show {
-      display: block;
-    }
+    .warning-bar.show { display: block; }
 
-    .record-date-area {
-      background: #ffffff;
-      padding: 14px 16px;
+    .record-date-area,
+    .quick-filter-area,
+    .search-area,
+    .filter-area,
+    .add-box {
+      background: #fff;
       border-bottom: 1px solid #ddd;
+      padding: 12px 16px;
     }
 
     .record-date-box {
@@ -98,21 +97,18 @@
       color: #25636a;
     }
 
-    .record-date-box input {
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .quick-filter-area {
-      background: #fff;
-      padding: 10px 16px;
-      border-bottom: 1px solid #ddd;
+    .quick-filter-row,
+    .filter-row,
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .quick-filter-row {
-      display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
+      margin-bottom: 0;
     }
 
     .quick-filter-btn {
@@ -121,18 +117,14 @@
       border: 1px solid #ddd;
       font-size: 14px;
       padding: 10px 4px;
+      border-radius: 10px;
+      font-weight: 900;
     }
 
     .quick-filter-btn.active {
       background: #70cbd2;
       color: #fff;
       border-color: #70cbd2;
-    }
-
-    .search-area {
-      padding: 14px 16px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
     }
 
     .search-box {
@@ -156,19 +148,6 @@
       font-size: 19px;
     }
 
-    .filter-area {
-      padding: 12px 16px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .filter-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
     select,
     input {
       width: 100%;
@@ -187,29 +166,16 @@
       line-height: 1.5;
     }
 
-    .bulk-area {
+    .bulk-area,
+    .backup-area {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-top: 10px;
     }
 
-    .btn-confirm-all {
-      background: #fff7d6;
-      color: #a16207;
-      border: 1px solid #f5bf42;
-    }
-
-    .btn-clear-all {
-      background: #eeeeee;
-      color: #333;
-      border: 1px solid #ccc;
-    }
-
-    .add-box {
-      background: #fff;
-      padding: 14px 16px;
-      border-bottom: 1px solid #ddd;
+    .backup-area {
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     .add-box h2 {
@@ -217,16 +183,7 @@
       font-size: 20px;
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .form-full {
-      margin-bottom: 8px;
-    }
+    .form-full { margin-bottom: 8px; }
 
     button {
       border: none;
@@ -245,9 +202,28 @@
       padding: 13px;
     }
 
-    .item-list {
-      background: #fff;
+    .btn-confirm-all {
+      background: #fff7d6;
+      color: #a16207;
+      border: 1px solid #f5bf42;
     }
+
+    .btn-clear-all,
+    .btn-gray {
+      background: #eee;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    .btn-backup {
+      background: #eef4ff;
+      color: #2b64c8;
+      border: 1px solid #a7c2ff;
+      font-size: 14px;
+      padding: 10px 4px;
+    }
+
+    .item-list { background: #fff; }
 
     .item-card {
       padding: 14px 16px;
@@ -255,9 +231,7 @@
       background: #fff;
     }
 
-    .item-card.locked {
-      background: #fafafa;
-    }
+    .item-card.locked { background: #fafafa; }
 
     .item-name {
       font-size: 24px;
@@ -313,18 +287,14 @@
       border: 2px solid #7ddc96;
     }
 
-    .today-box.active .today-number {
-      color: #15803d;
-    }
+    .today-box.active .today-number { color: #15803d; }
 
     .pending-box.active {
       background: #fff7d6;
       border: 2px solid #f5bf42;
     }
 
-    .pending-box.active .pending-number {
-      color: #b45309;
-    }
+    .pending-box.active .pending-number { color: #b45309; }
 
     .meta {
       margin-top: 5px;
@@ -357,9 +327,7 @@
       margin-top: 8px;
     }
 
-    .sub-action-row.two {
-      grid-template-columns: 1fr 1fr;
-    }
+    .sub-action-row.two { grid-template-columns: 1fr 1fr; }
 
     .btn-plus-big {
       background: #dff8e5;
@@ -400,12 +368,6 @@
       border: 1px solid #ffc48a;
     }
 
-    .btn-gray {
-      background: #eee;
-      color: #333;
-      border: 1px solid #ddd;
-    }
-
     .history-box {
       background: #fafafa;
       border: 1px solid #eee;
@@ -429,9 +391,7 @@
       padding: 3px 0;
     }
 
-    .history-line:last-child {
-      border-bottom: none;
-    }
+    .history-line:last-child { border-bottom: none; }
 
     .empty {
       padding: 30px;
@@ -489,7 +449,7 @@
     .modal {
       background: #fff;
       width: 100%;
-      max-width: 460px;
+      max-width: 500px;
       max-height: 85vh;
       overflow-y: auto;
       border-radius: 14px;
@@ -498,6 +458,7 @@
 
     .modal h2 {
       margin: 0 0 12px;
+      font-size: 22px;
     }
 
     .modal-buttons {
@@ -506,6 +467,39 @@
       gap: 8px;
       margin-top: 12px;
     }
+
+    .intro-list {
+      background: #f7fbff;
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      padding: 12px;
+      line-height: 1.8;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-card {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed #ddd;
+      padding: 6px 0;
+      font-weight: 800;
+    }
+
+    .stat-row:last-child { border-bottom: none; }
 
     .history-table {
       width: 100%;
@@ -521,9 +515,7 @@
       text-align: left;
     }
 
-    .history-table th {
-      background: #f5f5f5;
-    }
+    .history-table th { background: #f5f5f5; }
 
     .history-plus {
       color: #14823b;
@@ -535,41 +527,20 @@
       font-weight: 900;
     }
 
+    #restoreFileInput { display: none; }
+
     @media (max-width: 430px) {
-      header h1 {
-        font-size: 26px;
-      }
-
-      .warning-bar {
-        top: 70px;
-        font-size: 15px;
-      }
-
-      .item-card {
-        padding: 13px 12px;
-      }
-
-      .item-name {
-        font-size: 22px;
-      }
-
+      header h1 { font-size: 26px; }
+      .warning-bar { top: 70px; font-size: 15px; }
+      .item-card { padding: 13px 12px; }
+      .item-name { font-size: 22px; }
       .total-number,
       .today-number,
-      .pending-number {
-        font-size: 22px;
-      }
-
-      .locked-number {
-        font-size: 14px;
-      }
-
-      .quick-filter-btn {
-        font-size: 13px;
-      }
-
-      button {
-        font-size: 15px;
-      }
+      .pending-number { font-size: 22px; }
+      .locked-number { font-size: 14px; }
+      .quick-filter-btn { font-size: 13px; }
+      button { font-size: 15px; }
+      .backup-area { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -579,6 +550,7 @@
 <header>
   <h1>やさい収穫帳</h1>
   <div class="top-icons">
+    <span onclick="openIntro(true)">❔</span>
     <span onclick="toggleSort()">↕</span>
     <span onclick="openSettings()">⚙</span>
   </div>
@@ -615,7 +587,6 @@
   <div class="filter-area">
     <div class="filter-row">
       <select id="yearFilter" onchange="renderList()"></select>
-
       <select id="categoryFilter" onchange="renderList()">
         <option value="all">すべての野菜</option>
         <option value="なす">なす</option>
@@ -634,6 +605,13 @@
       <button class="btn-confirm-all" onclick="confirmAllHarvests()">全て確定</button>
       <button class="btn-clear-all" onclick="clearAllPending()">未確定を全取消</button>
     </div>
+
+    <div class="backup-area">
+      <button class="btn-backup" onclick="openStats()">集計</button>
+      <button class="btn-backup" onclick="exportBackupJson()">バックアップ</button>
+      <button class="btn-backup" onclick="document.getElementById('restoreFileInput').click()">復元</button>
+    </div>
+    <input id="restoreFileInput" type="file" accept=".json,application/json" onchange="restoreBackupJson(event)">
   </div>
 
   <div class="add-box">
@@ -649,7 +627,6 @@
         <option value="とうもろこし">🌽 とうもろこし</option>
         <option value="その他">🌱 その他</option>
       </select>
-
       <select id="newYear"></select>
     </div>
 
@@ -670,21 +647,50 @@
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-item">
+  <div class="nav-item active" onclick="scrollToTop()">
     <span class="nav-icon">🏠</span>
     ホーム
   </div>
-  <div class="nav-item active">
-    <span class="nav-icon">📋</span>
-    収穫一覧
+  <div class="nav-item" onclick="setViewMode('pending')">
+    <span class="nav-icon">⚠</span>
+    未確定
   </div>
   <div class="nav-item" onclick="scrollToAddBox()">
     <span class="nav-icon">➕</span>
     追加
   </div>
-  <div class="nav-item" onclick="openAllHistory()">
+  <div class="nav-item" onclick="openStats()">
     <span class="nav-icon">📊</span>
-    履歴
+    集計
+  </div>
+</div>
+
+<div class="modal-bg" id="introModalBg">
+  <div class="modal">
+    <h2>やさい収穫帳の使い方</h2>
+    <div class="intro-list">
+      ① 記録日を確認します<br>
+      ② 収穫した野菜の「＋」を押します<br>
+      ③ 収穫が終わったら「全て確定」を押します<br>
+      ④ 「集計」でランキングや野菜別合計を確認できます<br>
+      ⑤ データはスマホ内に保存されます<br>
+      ⑥ 定期的に「バックアップ」を押すと安心です
+    </div>
+    <div class="modal-buttons">
+      <button class="btn-gray" onclick="closeIntro()">閉じる</button>
+      <button class="btn-primary" onclick="closeIntro()">使い始める</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="statsModalBg">
+  <div class="modal">
+    <h2>集計</h2>
+    <div id="statsContent"></div>
+    <div class="modal-buttons">
+      <button class="btn-gray" onclick="closeStats()">閉じる</button>
+      <button class="btn-primary" onclick="exportCsv()">CSV出力</button>
+    </div>
   </div>
 </div>
 
@@ -706,7 +712,6 @@
         <option value="とうもろこし">🌽 とうもろこし</option>
         <option value="その他">🌱 その他</option>
       </select>
-
       <select id="editYear"></select>
     </div>
 
@@ -726,7 +731,6 @@
   <div class="modal">
     <h2 id="historyTitle">収穫履歴</h2>
     <div id="historyContent"></div>
-
     <div class="modal-buttons">
       <button class="btn-gray" onclick="closeHistory()">閉じる</button>
       <button class="btn-primary" onclick="openAllHistory()">全履歴</button>
@@ -738,9 +742,13 @@
   <div class="modal">
     <h2>設定</h2>
 
-    <button class="btn-primary" onclick="exportData()">データをコピー表示</button>
+    <button class="btn-primary" onclick="openIntro(true)">使い方を表示</button>
     <br><br>
-    <button class="btn-delete" style="width:100%;" onclick="resetData()">入力データだけ初期化</button>
+    <button class="btn-backup" style="width:100%;" onclick="exportBackupJson()">JSONバックアップ</button>
+    <br><br>
+    <button class="btn-backup" style="width:100%;" onclick="exportCsv()">CSV出力</button>
+    <br><br>
+    <button class="btn-delete" style="width:100%;" onclick="resetData()">2026年以降の入力データだけ初期化</button>
 
     <div class="modal-buttons">
       <button class="btn-gray" onclick="closeSettings()">閉じる</button>
@@ -749,12 +757,37 @@
 </div>
 
 <script>
-  const STORAGE_KEY = "yasaiHarvestPwaStep3V1";
+  const STORAGE_KEY = "yasaiHarvestUpgradeV2";
+  const INTRO_KEY = "yasaiHarvestIntroSeenV1";
 
   let items = [];
   let editingId = null;
   let sortMode = "totalDesc";
   let viewMode = "all";
+
+  function getIcon(category) {
+    if (category === "なす") return "🍆";
+    if (category === "トマト") return "🍅";
+    if (category === "きゅうり") return "🥒";
+    if (category === "ピーマン") return "🌶️";
+    if (category === "いちご") return "🍓";
+    if (category === "とうもろこし") return "🌽";
+    return "🌱";
+  }
+
+  function makeItem(year, category, name, total, history) {
+    const cleanCategory = category === "とまと" ? "トマト" : category;
+    const icon = getIcon(cleanCategory);
+    return {
+      id: `${year}-${cleanCategory}-${name}`,
+      name: `${icon} ${name}`,
+      category: cleanCategory,
+      year: Number(year),
+      total: Number(total),
+      pending: {},
+      history: history || []
+    };
+  }
 
   const PAST_BASE_ITEMS = [
     makeItem(2025, "なす", "黒陽", 80, []),
@@ -795,17 +828,18 @@
   const DEFAULT_CURRENT_ITEMS = [
     makeItem(2026, "きゅうり", "シャキット", 0, []),
     makeItem(2026, "きゅうり", "夏いづみ", 0, []),
-
     makeItem(2026, "なす", "黒陽", 0, []),
     makeItem(2026, "なす", "千両二号", 0, []),
-
     makeItem(2026, "トマト", "ぷるるん", 0, []),
     makeItem(2026, "トマト", "千果", 0, []),
     makeItem(2026, "トマト", "ミラクルリッチオレンジ", 0, []),
-
     makeItem(2026, "ピーマン", "京みどり", 0, []),
     makeItem(2026, "ピーマン", "ニューエース", 0, [])
   ];
+
+  function cloneItem(item) {
+    return JSON.parse(JSON.stringify(item));
+  }
 
   function todayString() {
     const d = new Date();
@@ -817,10 +851,7 @@
 
   function getRecordDate() {
     const input = document.getElementById("globalRecordDate");
-    if (input && input.value) {
-      return input.value;
-    }
-    return todayString();
+    return input && input.value ? input.value : todayString();
   }
 
   function getCurrentYear() {
@@ -829,16 +860,6 @@
 
   function isEditableYear(year) {
     return Number(year) >= 2026;
-  }
-
-  function getIcon(category) {
-    if (category === "なす") return "🍆";
-    if (category === "トマト") return "🍅";
-    if (category === "きゅうり") return "🥒";
-    if (category === "ピーマン") return "🌶️";
-    if (category === "いちご") return "🍓";
-    if (category === "とうもろこし") return "🌽";
-    return "🌱";
   }
 
   function removeIcon(name) {
@@ -856,60 +877,34 @@
   function formatDate(dateText) {
     if (!dateText) return "";
     const parts = String(dateText).split("-");
-    if (parts.length === 3) {
-      return `${Number(parts[1])}.${Number(parts[2])}`;
-    }
+    if (parts.length === 3) return `${Number(parts[1])}.${Number(parts[2])}`;
     return dateText;
   }
 
   function formatDateLong(dateText) {
     if (!dateText) return "";
     const parts = String(dateText).split("-");
-    if (parts.length === 3) {
-      return `${parts[0]}年${Number(parts[1])}月${Number(parts[2])}日`;
-    }
+    if (parts.length === 3) return `${parts[0]}年${Number(parts[1])}月${Number(parts[2])}日`;
     return dateText;
   }
 
-  function makeItem(year, category, name, total, history) {
-    const cleanCategory = category === "とまと" ? "トマト" : category;
-    const icon = getIcon(cleanCategory);
-
-    return {
-      id: `${year}-${cleanCategory}-${name}`,
-      name: `${icon} ${name}`,
-      category: cleanCategory,
-      year: Number(year),
-      total: Number(total),
-      pending: {},
-      history: history || []
-    };
-  }
-
-  function cloneItem(item) {
-    return JSON.parse(JSON.stringify(item));
+  function normalizeItem(item) {
+    if (!item.history) item.history = [];
+    if (!item.pending) item.pending = {};
+    if (!item.id) item.id = `${item.year}-${item.category}-${removeIcon(item.name)}-${Date.now()}`;
+    return item;
   }
 
   function loadData() {
     const saved = localStorage.getItem(STORAGE_KEY);
 
     if (saved) {
-      const savedItems = JSON.parse(saved);
-
-      const editableItems = savedItems
-        .filter(item => isEditableYear(item.year))
-        .map(item => {
-          if (!item.history) item.history = [];
-          if (!item.pending) item.pending = {};
-          return item;
-        });
-
+      const savedItems = JSON.parse(saved).map(normalizeItem);
+      const editableItems = savedItems.filter(item => isEditableYear(item.year));
       const editableIds = new Set(editableItems.map(item => item.id));
 
       DEFAULT_CURRENT_ITEMS.forEach(baseItem => {
-        if (!editableIds.has(baseItem.id)) {
-          editableItems.push(cloneItem(baseItem));
-        }
+        if (!editableIds.has(baseItem.id)) editableItems.push(cloneItem(baseItem));
       });
 
       items = [
@@ -935,9 +930,7 @@
 
   function getPendingTotal(item) {
     if (!item.pending) item.pending = {};
-
-    return Object.values(item.pending)
-      .reduce((sum, value) => sum + Number(value || 0), 0);
+    return Object.values(item.pending).reduce((sum, value) => sum + Number(value || 0), 0);
   }
 
   function getPendingAmountByDate(item, date) {
@@ -952,25 +945,16 @@
   function updateWarningBar() {
     const warningBar = document.getElementById("warningBar");
     if (!warningBar) return;
-
-    if (hasAnyPending()) {
-      warningBar.classList.add("show");
-    } else {
-      warningBar.classList.remove("show");
-    }
+    warningBar.classList.toggle("show", hasAnyPending());
   }
 
   function getDisplayTotal(item) {
-    if (!isEditableYear(item.year)) {
-      return Number(item.total || 0);
-    }
-
+    if (!isEditableYear(item.year)) return Number(item.total || 0);
     return Number(item.total || 0) + getPendingTotal(item);
   }
 
   function getConfirmedAmountByDate(item, date) {
     if (!item.history) item.history = [];
-
     return item.history
       .filter(h => h.date === date)
       .reduce((sum, h) => sum + Number(h.amount || 0), 0);
@@ -981,10 +965,7 @@
   }
 
   function getDisplayAmountByDate(item, date) {
-    if (!isEditableYear(item.year)) {
-      return 0;
-    }
-
+    if (!isEditableYear(item.year)) return 0;
     return getConfirmedAmountByDate(item, date) + getPendingAmountByDate(item, date);
   }
 
@@ -992,7 +973,6 @@
     const yearFilter = document.getElementById("yearFilter");
     const newYear = document.getElementById("newYear");
     const editYear = document.getElementById("editYear");
-
     const currentYear = getCurrentYear();
 
     yearFilter.innerHTML = `<option value="all">すべての年</option>`;
@@ -1016,13 +996,9 @@
     document.getElementById("viewTodayBtn").classList.remove("active");
     document.getElementById("viewPendingBtn").classList.remove("active");
 
-    if (mode === "all") {
-      document.getElementById("viewAllBtn").classList.add("active");
-    } else if (mode === "today") {
-      document.getElementById("viewTodayBtn").classList.add("active");
-    } else if (mode === "pending") {
-      document.getElementById("viewPendingBtn").classList.add("active");
-    }
+    if (mode === "all") document.getElementById("viewAllBtn").classList.add("active");
+    if (mode === "today") document.getElementById("viewTodayBtn").classList.add("active");
+    if (mode === "pending") document.getElementById("viewPendingBtn").classList.add("active");
 
     renderList();
   }
@@ -1040,27 +1016,15 @@
       const matchCategory = categoryFilter === "all" || item.category === categoryFilter;
 
       let matchView = true;
-
-      if (viewMode === "today") {
-        matchView = getDisplayAmountByDate(item, recordDate) > 0;
-      }
-
-      if (viewMode === "pending") {
-        matchView = getPendingTotal(item) !== 0;
-      }
+      if (viewMode === "today") matchView = getDisplayAmountByDate(item, recordDate) > 0;
+      if (viewMode === "pending") matchView = getPendingTotal(item) !== 0;
 
       return matchName && matchYear && matchCategory && matchView;
     });
 
     filtered.sort((a, b) => {
-      if (sortMode === "totalDesc") {
-        return getDisplayTotal(b) - getDisplayTotal(a);
-      }
-
-      if (sortMode === "totalAsc") {
-        return getDisplayTotal(a) - getDisplayTotal(b);
-      }
-
+      if (sortMode === "totalDesc") return getDisplayTotal(b) - getDisplayTotal(a);
+      if (sortMode === "totalAsc") return getDisplayTotal(a) - getDisplayTotal(b);
       return a.name.localeCompare(b.name, "ja");
     });
 
@@ -1083,8 +1047,6 @@
     }
 
     filtered.forEach(item => {
-      if (!item.pending) item.pending = {};
-
       const editable = isEditableYear(item.year);
       const todayAmount = getDisplayAmountByDate(item, recordDate);
       const pendingTotal = editable ? getPendingTotal(item) : 0;
@@ -1103,93 +1065,71 @@
         `)
         .join("");
 
+      const middleBoxes = editable ? `
+        <div class="total-today-row">
+          <div class="total-box">
+            <div class="total-label">TOTAL</div>
+            <div class="total-number">${getDisplayTotal(item).toLocaleString()}</div>
+          </div>
+          <div class="today-box ${todayAmount > 0 ? "active" : ""}">
+            <div class="today-label">${formatDate(recordDate)}</div>
+            <div class="today-number">${todayAmount.toLocaleString()}</div>
+          </div>
+          <div class="pending-box ${pendingTotal !== 0 ? "active" : ""}">
+            <div class="pending-label">未確定</div>
+            <div class="pending-number">${pendingTotal.toLocaleString()}</div>
+          </div>
+        </div>
+      ` : `
+        <div class="total-today-row">
+          <div class="total-box">
+            <div class="total-label">TOTAL</div>
+            <div class="total-number">${Number(item.total || 0).toLocaleString()}</div>
+          </div>
+          <div class="locked-box">
+            <div class="locked-label">区分</div>
+            <div class="locked-number">過去</div>
+          </div>
+          <div class="locked-box">
+            <div class="locked-label">固定</div>
+            <div class="locked-number">CSV</div>
+          </div>
+        </div>
+      `;
+
+      const operationButtons = editable ? `
+        <div class="big-action-row">
+          <button class="btn-plus-big" onclick="plusOne('${item.id}')">＋</button>
+          <button class="btn-minus-big" onclick="minusOne('${item.id}')">－</button>
+          <button class="btn-confirm" onclick="confirmHarvest('${item.id}')">確定</button>
+        </div>
+        <div class="sub-action-row">
+          <button class="btn-edit" onclick="openEdit('${item.id}')">編集</button>
+          <button class="btn-gray" onclick="showHistory('${item.id}')">履歴</button>
+          <button class="btn-delete" onclick="deleteItem('${item.id}')">削除</button>
+        </div>
+        <div class="sub-action-row two">
+          <button class="btn-gray" onclick="clearPending('${item.id}')">未確定取消</button>
+          <button class="btn-gray" onclick="openAllHistory()">全履歴</button>
+        </div>
+      ` : `
+        <div class="sub-action-row two">
+          <button class="btn-gray" onclick="showHistory('${item.id}')">確認</button>
+          <button class="btn-gray" onclick="openAllHistory()">全履歴</button>
+        </div>
+      `;
+
       const card = document.createElement("div");
       card.className = editable ? "item-card" : "item-card locked";
 
-      let middleBoxes = "";
-
-      if (editable) {
-        middleBoxes = `
-          <div class="total-today-row">
-            <div class="total-box">
-              <div class="total-label">TOTAL</div>
-              <div class="total-number">${getDisplayTotal(item).toLocaleString()}</div>
-            </div>
-
-            <div class="today-box ${todayAmount > 0 ? "active" : ""}">
-              <div class="today-label">${formatDate(recordDate)}</div>
-              <div class="today-number">${todayAmount.toLocaleString()}</div>
-            </div>
-
-            <div class="pending-box ${pendingTotal !== 0 ? "active" : ""}">
-              <div class="pending-label">未確定</div>
-              <div class="pending-number">${pendingTotal.toLocaleString()}</div>
-            </div>
-          </div>
-        `;
-      } else {
-        middleBoxes = `
-          <div class="total-today-row">
-            <div class="total-box">
-              <div class="total-label">TOTAL</div>
-              <div class="total-number">${Number(item.total || 0).toLocaleString()}</div>
-            </div>
-
-            <div class="locked-box">
-              <div class="locked-label">区分</div>
-              <div class="locked-number">過去</div>
-            </div>
-
-            <div class="locked-box">
-              <div class="locked-label">固定</div>
-              <div class="locked-number">CSV</div>
-            </div>
-          </div>
-        `;
-      }
-
-      let operationButtons = "";
-
-      if (editable) {
-        operationButtons = `
-          <div class="big-action-row">
-            <button class="btn-plus-big" onclick="plusOne('${item.id}')">＋</button>
-            <button class="btn-minus-big" onclick="minusOne('${item.id}')">－</button>
-            <button class="btn-confirm" onclick="confirmHarvest('${item.id}')">確定</button>
-          </div>
-
-          <div class="sub-action-row">
-            <button class="btn-edit" onclick="openEdit('${item.id}')">編集</button>
-            <button class="btn-gray" onclick="showHistory('${item.id}')">履歴</button>
-            <button class="btn-delete" onclick="deleteItem('${item.id}')">削除</button>
-          </div>
-
-          <div class="sub-action-row two">
-            <button class="btn-gray" onclick="clearPending('${item.id}')">未確定取消</button>
-            <button class="btn-gray" onclick="openAllHistory()">全履歴</button>
-          </div>
-        `;
-      } else {
-        operationButtons = `
-          <div class="sub-action-row two">
-            <button class="btn-gray" onclick="showHistory('${item.id}')">確認</button>
-            <button class="btn-gray" onclick="openAllHistory()">全履歴</button>
-          </div>
-        `;
-      }
-
       card.innerHTML = `
         <div class="item-name">${item.name}</div>
-
         ${middleBoxes}
-
         <div class="meta">
           ${item.year}年 / ${item.category}
           ${editable ? "" : `<br><span class="past-label">添付CSVの過去基本データ：変更不可</span>`}
         </div>
-
         ${operationButtons}
-
         <div class="history-box">
           <div class="history-title">${editable ? "最近の確定済み履歴" : "過去基本データ"}</div>
           ${recentHistory || (editable ? "まだ確定済みの記録はありません" : "年間TOTALのみ登録済み")}
@@ -1226,19 +1166,10 @@
     }
 
     const icon = getIcon(category);
-
-    if (!name.startsWith(icon)) {
-      name = `${icon} ${name}`;
-    }
+    if (!name.startsWith(icon)) name = `${icon} ${name}`;
 
     const history = [];
-
-    if (firstAmount !== 0) {
-      history.push({
-        date: date,
-        amount: firstAmount
-      });
-    }
+    if (firstAmount !== 0) history.push({ date, amount: firstAmount });
 
     items.push({
       id: `${year}-${category}-${removeIcon(name)}-${Date.now()}`,
@@ -1255,7 +1186,6 @@
     document.getElementById("newName").value = "";
     document.getElementById("newTotal").value = "";
     document.getElementById("newToday").value = "";
-
     document.getElementById("yearFilter").value = String(year);
     document.getElementById("categoryFilter").value = category;
 
@@ -1272,28 +1202,17 @@
     }
 
     const date = getRecordDate();
-
-    if (!item.pending) {
-      item.pending = {};
-    }
-
+    if (!item.pending) item.pending = {};
     item.pending[date] = Number(item.pending[date] || 0) + Number(amount);
 
-    if (item.pending[date] === 0) {
-      delete item.pending[date];
-    }
+    if (item.pending[date] === 0) delete item.pending[date];
 
     saveData();
     renderList();
   }
 
-  function plusOne(id) {
-    addPending(id, 1);
-  }
-
-  function minusOne(id) {
-    addPending(id, -1);
-  }
+  function plusOne(id) { addPending(id, 1); }
+  function minusOne(id) { addPending(id, -1); }
 
   function confirmHarvest(id) {
     const item = items.find(i => i.id === id);
@@ -1304,12 +1223,7 @@
       return;
     }
 
-    if (!item.pending) {
-      item.pending = {};
-    }
-
-    const entries = Object.entries(item.pending)
-      .filter(([date, amount]) => Number(amount) !== 0);
+    const entries = Object.entries(item.pending || {}).filter(([date, amount]) => Number(amount) !== 0);
 
     if (entries.length === 0) {
       alert("未確定の収穫がありません。");
@@ -1318,17 +1232,11 @@
 
     entries.forEach(([date, amount]) => {
       const num = Number(amount);
-
-      item.history.push({
-        date: date,
-        amount: num
-      });
-
+      item.history.push({ date, amount: num });
       item.total = Number(item.total || 0) + num;
     });
 
     item.pending = {};
-
     saveData();
     renderList();
 
@@ -1343,31 +1251,21 @@
       return;
     }
 
-    if (!confirm(`未確定の収穫をすべて確定しますか？\n対象：${pendingItems.length}件`)) {
-      return;
-    }
+    if (!confirm(`未確定の収穫をすべて確定しますか？\n対象：${pendingItems.length}件`)) return;
 
     pendingItems.forEach(item => {
-      const entries = Object.entries(item.pending)
-        .filter(([date, amount]) => Number(amount) !== 0);
-
-      entries.forEach(([date, amount]) => {
+      Object.entries(item.pending || {}).forEach(([date, amount]) => {
         const num = Number(amount);
-
-        item.history.push({
-          date: date,
-          amount: num
-        });
-
-        item.total = Number(item.total || 0) + num;
+        if (num !== 0) {
+          item.history.push({ date, amount: num });
+          item.total = Number(item.total || 0) + num;
+        }
       });
-
       item.pending = {};
     });
 
     saveData();
     renderList();
-
     alert("すべての未確定収穫を確定しました。");
   }
 
@@ -1385,9 +1283,7 @@
       return;
     }
 
-    if (!confirm(`${item.name} の未確定分を取り消しますか？`)) {
-      return;
-    }
+    if (!confirm(`${item.name} の未確定分を取り消しますか？`)) return;
 
     item.pending = {};
     saveData();
@@ -1402,14 +1298,9 @@
       return;
     }
 
-    if (!confirm(`すべての未確定分を取り消しますか？\n対象：${pendingItems.length}件`)) {
-      return;
-    }
+    if (!confirm(`すべての未確定分を取り消しますか？\n対象：${pendingItems.length}件`)) return;
 
-    pendingItems.forEach(item => {
-      item.pending = {};
-    });
-
+    pendingItems.forEach(item => item.pending = {});
     saveData();
     renderList();
   }
@@ -1424,7 +1315,6 @@
     }
 
     editingId = id;
-
     const recordDate = getRecordDate();
 
     document.getElementById("editName").value = removeIcon(item.name);
@@ -1444,11 +1334,6 @@
   function saveEdit() {
     const item = items.find(i => i.id === editingId);
     if (!item) return;
-
-    if (!isEditableYear(item.year)) {
-      alert("2025年以前は添付CSVの固定データです。変更できません。");
-      return;
-    }
 
     const category = document.getElementById("editCategory").value;
     const icon = getIcon(category);
@@ -1470,21 +1355,11 @@
     const diff = newAmountForDate - oldAmountForDate;
 
     if (diff !== 0) {
-      if (!item.history) {
-        item.history = [];
-      }
-
-      item.history.push({
-        date: editDate,
-        amount: diff
-      });
-
+      item.history.push({ date: editDate, amount: diff });
       item.total = Number(item.total || 0) + diff;
     }
 
-    if (!item.pending) {
-      item.pending = {};
-    }
+    if (!item.pending) item.pending = {};
 
     saveData();
     closeEdit();
@@ -1500,9 +1375,7 @@
       return;
     }
 
-    if (!confirm(`${item.name} を削除しますか？`)) {
-      return;
-    }
+    if (!confirm(`${item.name} を削除しますか？`)) return;
 
     items = items.filter(i => i.id !== id);
     saveData();
@@ -1516,20 +1389,16 @@
     document.getElementById("historyTitle").textContent = `${item.name} の収穫履歴`;
 
     if (!item.history || item.history.length === 0) {
-      if (isEditableYear(item.year)) {
-        document.getElementById("historyContent").innerHTML =
-          `<div class="empty">確定済み履歴はまだありません</div>`;
-      } else {
-        document.getElementById("historyContent").innerHTML =
-          `<div class="empty">この年は添付CSVの固定データです。<br>TOTAL ${Number(item.total || 0).toLocaleString()} として登録されています。</div>`;
-      }
+      const message = isEditableYear(item.year)
+        ? `<div class="empty">確定済み履歴はまだありません</div>`
+        : `<div class="empty">この年は添付CSVの固定データです。<br>TOTAL ${Number(item.total || 0).toLocaleString()} として登録されています。</div>`;
 
+      document.getElementById("historyContent").innerHTML = message;
       document.getElementById("historyModalBg").style.display = "flex";
       return;
     }
 
     const rows = groupHistoryByDate([item]);
-
     document.getElementById("historyContent").innerHTML = buildHistoryTable(rows, false);
     document.getElementById("historyModalBg").style.display = "flex";
   }
@@ -1539,12 +1408,9 @@
 
     const rows = groupHistoryByDate(items);
 
-    if (rows.length === 0) {
-      document.getElementById("historyContent").innerHTML =
-        `<div class="empty">確定済み履歴はまだありません</div>`;
-    } else {
-      document.getElementById("historyContent").innerHTML = buildHistoryTable(rows, true);
-    }
+    document.getElementById("historyContent").innerHTML = rows.length === 0
+      ? `<div class="empty">確定済み履歴はまだありません</div>`
+      : buildHistoryTable(rows, true);
 
     document.getElementById("historyModalBg").style.display = "flex";
   }
@@ -1604,12 +1470,166 @@
       `;
     });
 
-    html += `
-        </tbody>
-      </table>
+    html += `</tbody></table>`;
+    return html;
+  }
+
+  function openStats() {
+    const selectedYear = document.getElementById("yearFilter").value;
+    const year = selectedYear === "all" ? getCurrentYear() : Number(selectedYear);
+
+    const yearItems = items.filter(item => Number(item.year) === year);
+    const ranking = [...yearItems].sort((a, b) => getDisplayTotal(b) - getDisplayTotal(a));
+
+    const categoryTotals = {};
+    yearItems.forEach(item => {
+      if (!categoryTotals[item.category]) categoryTotals[item.category] = 0;
+      categoryTotals[item.category] += getDisplayTotal(item);
+    });
+
+    const total = yearItems.reduce((sum, item) => sum + getDisplayTotal(item), 0);
+
+    let html = `
+      <div class="stat-card">
+        <h3>${year}年 総収穫</h3>
+        <div class="stat-row"><span>合計</span><span>${total.toLocaleString()}</span></div>
+        <div class="stat-row"><span>品目数</span><span>${yearItems.length}</span></div>
+      </div>
+
+      <div class="stat-card">
+        <h3>${year}年 収穫ランキング</h3>
     `;
 
-    return html;
+    if (ranking.length === 0) {
+      html += `<div class="empty">データがありません</div>`;
+    } else {
+      ranking.slice(0, 10).forEach((item, index) => {
+        html += `
+          <div class="stat-row">
+            <span>${index + 1}位　${item.name}</span>
+            <span>${getDisplayTotal(item).toLocaleString()}</span>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div><div class="stat-card"><h3>野菜カテゴリ別合計</h3>`;
+
+    const categoryRows = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+
+    if (categoryRows.length === 0) {
+      html += `<div class="empty">データがありません</div>`;
+    } else {
+      categoryRows.forEach(([category, value]) => {
+        html += `
+          <div class="stat-row">
+            <span>${getIcon(category)} ${category}</span>
+            <span>${value.toLocaleString()}</span>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+
+    document.getElementById("statsContent").innerHTML = html;
+    document.getElementById("statsModalBg").style.display = "flex";
+  }
+
+  function closeStats() {
+    document.getElementById("statsModalBg").style.display = "none";
+  }
+
+  function exportBackupJson() {
+    const backup = {
+      app: "やさい収穫帳",
+      version: "upgrade-v2",
+      exportedAt: new Date().toISOString(),
+      items: items.filter(item => isEditableYear(item.year))
+    };
+
+    downloadTextFile(
+      `yasai-harvest-backup-${todayString()}.json`,
+      JSON.stringify(backup, null, 2),
+      "application/json"
+    );
+  }
+
+  function restoreBackupJson(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        const importedItems = Array.isArray(data.items) ? data.items : data;
+
+        if (!Array.isArray(importedItems)) {
+          alert("復元できるデータ形式ではありません。");
+          return;
+        }
+
+        const editableItems = importedItems
+          .filter(item => isEditableYear(item.year))
+          .map(normalizeItem);
+
+        if (!confirm(`2026年以降のデータを復元しますか？\n対象：${editableItems.length}件`)) return;
+
+        items = [
+          ...PAST_BASE_ITEMS.map(cloneItem),
+          ...editableItems
+        ];
+
+        saveData();
+        renderList();
+        alert("復元しました。");
+      } catch (error) {
+        alert("復元に失敗しました。JSONファイルを確認してください。");
+      }
+
+      event.target.value = "";
+    };
+
+    reader.readAsText(file, "UTF-8");
+  }
+
+  function exportCsv() {
+    const rows = [
+      ["年", "カテゴリ", "品目", "TOTAL", "履歴日付", "履歴収量"]
+    ];
+
+    items.forEach(item => {
+      const cleanName = removeIcon(item.name);
+      if (!item.history || item.history.length === 0) {
+        rows.push([item.year, item.category, cleanName, getDisplayTotal(item), "", ""]);
+      } else {
+        item.history.forEach(h => {
+          rows.push([item.year, item.category, cleanName, getDisplayTotal(item), h.date, h.amount]);
+        });
+      }
+    });
+
+    const csv = rows.map(row =>
+      row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(",")
+    ).join("\n");
+
+    downloadTextFile(
+      `yasai-harvest-${todayString()}.csv`,
+      "\uFEFF" + csv,
+      "text/csv"
+    );
+  }
+
+  function downloadTextFile(filename, text, type) {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function toggleSort() {
@@ -1627,17 +1647,22 @@
     renderList();
   }
 
+  function openIntro(force) {
+    if (!force && localStorage.getItem(INTRO_KEY)) return;
+    document.getElementById("introModalBg").style.display = "flex";
+  }
+
+  function closeIntro() {
+    localStorage.setItem(INTRO_KEY, "yes");
+    document.getElementById("introModalBg").style.display = "none";
+  }
+
   function openSettings() {
     document.getElementById("settingsModalBg").style.display = "flex";
   }
 
   function closeSettings() {
     document.getElementById("settingsModalBg").style.display = "none";
-  }
-
-  function exportData() {
-    const text = JSON.stringify(items, null, 2);
-    prompt("このデータをコピーして保存できます。", text);
   }
 
   function resetData() {
@@ -1660,6 +1685,10 @@
     });
   }
 
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   window.addEventListener("beforeunload", function(event) {
     if (hasAnyPending()) {
       event.preventDefault();
@@ -1673,9 +1702,9 @@
   document.getElementById("globalRecordDate").value = todayString();
 
   renderList();
+  openIntro(false);
 </script>
 
-<!-- PWA STEP 3：Service Worker 登録 -->
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function() {
