@@ -1,0 +1,26 @@
+{
+  "name": "やさい収穫帳",
+  "short_name": "収穫帳",
+  "description": "家庭菜園の野菜収穫量を品種別・年別に記録するアプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8ead8",
+  "theme_color": "#70cbd2",
+  "orientation": "portrait",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

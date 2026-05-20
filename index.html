@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PWA STEP 2：manifest 読み込み -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#70cbd2">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="やさい収穫帳">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <title>やさい収穫帳</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f7f7;
+      color: #333;
+      padding-bottom: 90px;
+    }
+
+    header {
+      background: #f8ead8;
+      padding: 20px 16px 16px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid #ddd;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 900;
+      color: #111;
+    }
+
+    .top-icons {
+      position: absolute;
+      right: 16px;
+      top: 18px;
+      font-size: 28px;
+      display: flex;
+      gap: 18px;
+      color: #666;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding-bottom: 100px;
+    }
+
+    .warning-bar {
+      display: none;
+      background: #fff3cd;
+      color: #8a5a00;
+      border-bottom: 1px solid #f0d98c;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 900;
+      text-align: center;
+      position: sticky;
+      top: 73px;
+      z-index: 15;
+    }
+
+    .warning-bar.show {
+      display: block;
+    }
+
+    .record-date-area {
+      background: #ffffff;
+      padding: 14px 16px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .record-date-box {
+      background: #eefcff;
+      border: 2px solid #70cbd2;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .record-date-label {
+      font-size: 15px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: #25636a;
+    }
+
+    .record-date-box input {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .quick-filter-area {
+      background: #fff;
+      padding: 10px 16px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .quick-filter-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .quick-filter-btn {
+      background: #eeeeee;
+      color: #333;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      padding: 10px 4px;
+    }
+
+    .quick-filter-btn.active {
+      background: #70cbd2;
+      color: #fff;
+      border-color: #70cbd2;
+    }
+
+    .search-area {
+      padding: 14px 16px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .search-box {
+      border: 2px solid #888;
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-box span {
+      font-size: 24px;
+      color: #666;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 19px;
+    }
+
+    .filter-area {
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .summary {
+      text-align: right;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 8px 2px 2px;
+      line-height: 1.5;
+    }
+
+    .bulk-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-confirm-all {
+      background: #fff7d6;
+      color: #a16207;
+      border: 1px solid #f5bf42;
+    }
+
+    .btn-clear-all {
+      background: #eeeeee;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+
+    .add-box {
+      background: #fff;
+      padding: 14px 16px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .add-box h2 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .form-full {
+      margin-bottom: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: #70cbd2;
+      color: #fff;
+      font-size: 18px;
+      padding: 13px;
+    }
+
+    .item-list {
+      background: #fff;
+    }
+
+    .item-card {
+      padding: 14px 16px;
+      border-bottom: 1px solid #dfe8d8;
+      background: #fff;
+    }
+
+    .item-card.locked {
+      background: #fafafa;
+    }
+
+    .item-name {
+      font-size: 24px;
+      font-weight: 900;
+      color: #464650;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .total-today-row {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px;
+    }
+
+    .total-box,
+    .today-box,
+    .pending-box,
+    .locked-box {
+      background: #eeeeee;
+      border-radius: 8px;
+      padding: 8px 5px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .total-label,
+    .today-label,
+    .pending-label,
+    .locked-label {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.1;
+    }
+
+    .total-number,
+    .today-number,
+    .pending-number {
+      font-size: 25px;
+      color: #333;
+      line-height: 1.2;
+    }
+
+    .locked-number {
+      font-size: 16px;
+      color: #777;
+      line-height: 1.2;
+    }
+
+    .today-box.active {
+      background: #e9fff0;
+      border: 2px solid #7ddc96;
+    }
+
+    .today-box.active .today-number {
+      color: #15803d;
+    }
+
+    .pending-box.active {
+      background: #fff7d6;
+      border: 2px solid #f5bf42;
+    }
+
+    .pending-box.active .pending-number {
+      color: #b45309;
+    }
+
+    .meta {
+      margin-top: 5px;
+      font-size: 13px;
+      color: #777;
+    }
+
+    .past-label {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 8px;
+      background: #e5e7eb;
+      color: #555;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .big-action-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sub-action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .sub-action-row.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .btn-plus-big {
+      background: #dff8e5;
+      color: #087a2b;
+      border: 2px solid #73d48c;
+      font-size: 28px;
+      padding: 16px 6px;
+      border-radius: 14px;
+    }
+
+    .btn-minus-big {
+      background: #fff0f0;
+      color: #c0392b;
+      border: 2px solid #f0aaa5;
+      font-size: 24px;
+      padding: 16px 6px;
+      border-radius: 14px;
+    }
+
+    .btn-confirm {
+      background: #fff7d6;
+      color: #a16207;
+      border: 2px solid #f5bf42;
+      font-size: 17px;
+      padding: 16px 6px;
+      border-radius: 14px;
+    }
+
+    .btn-edit {
+      background: #eef4ff;
+      color: #2b64c8;
+      border: 1px solid #a7c2ff;
+    }
+
+    .btn-delete {
+      background: #fff2e8;
+      color: #d35400;
+      border: 1px solid #ffc48a;
+    }
+
+    .btn-gray {
+      background: #eee;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    .history-box {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 13px;
+      color: #555;
+      margin-top: 8px;
+    }
+
+    .history-title {
+      font-weight: 900;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .history-line {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed #ddd;
+      padding: 3px 0;
+    }
+
+    .history-line:last-child {
+      border-bottom: none;
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      font-size: 18px;
+      color: #777;
+      background: #fff;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 78px;
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      z-index: 30;
+    }
+
+    .nav-item {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #444;
+      padding-top: 8px;
+    }
+
+    .nav-item.active {
+      background: #74c9d1;
+      color: #fff;
+    }
+
+    .nav-icon {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 2px;
+    }
+
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .modal {
+      background: #fff;
+      width: 100%;
+      max-width: 460px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .modal h2 {
+      margin: 0 0 12px;
+    }
+
+    .modal-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 15px;
+    }
+
+    .history-table th,
+    .history-table td {
+      border-bottom: 1px solid #ddd;
+      padding: 8px 4px;
+      text-align: left;
+    }
+
+    .history-table th {
+      background: #f5f5f5;
+    }
+
+    .history-plus {
+      color: #14823b;
+      font-weight: 900;
+    }
+
+    .history-minus {
+      color: #c0392b;
+      font-weight: 900;
+    }
+
+    @media (max-width: 430px) {
+      header h1 {
+        font-size: 26px;
+      }
+
+      .warning-bar {
+        top: 70px;
+        font-size: 15px;
+      }
+
+      .item-card {
+        padding: 13px 12px;
+      }
+
+      .item-name {
+        font-size: 22px;
+      }
+
+      .total-number,
+      .today-number,
+      .pending-number {
+        font-size: 22px;
+      }
+
+      .locked-number {
+        font-size: 14px;
+      }
+
+      .quick-filter-btn {
+        font-size: 13px;
+      }
+
+      button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>やさい収穫帳</h1>
+  <div class="top-icons">
+    <span onclick="toggleSort()">↕</span>
+    <span onclick="openSettings()">⚙</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <div id="warningBar" class="warning-bar">
+    ⚠ 未確定があります。最後に「全て確定」または各カードの「確定」を押してください。
+  </div>
+
+  <div class="record-date-area">
+    <div class="record-date-box">
+      <div class="record-date-label">記録日</div>
+      <input id="globalRecordDate" type="date" onchange="renderList()">
+    </div>
+  </div>
+
+  <div class="quick-filter-area">
+    <div class="quick-filter-row">
+      <button id="viewAllBtn" class="quick-filter-btn active" onclick="setViewMode('all')">すべて</button>
+      <button id="viewTodayBtn" class="quick-filter-btn" onclick="setViewMode('today')">今日収穫あり</button>
+      <button id="viewPendingBtn" class="quick-filter-btn" onclick="setViewMode('pending')">未確定あり</button>
+    </div>
+  </div>
+
+  <div class="search-area">
+    <div class="search-box">
+      <span>🔍</span>
+      <input id="searchInput" type="text" placeholder="品目名で検索" oninput="renderList()">
+    </div>
+  </div>
+
+  <div class="filter-area">
+    <div class="filter-row">
+      <select id="yearFilter" onchange="renderList()"></select>
+
+      <select id="categoryFilter" onchange="renderList()">
+        <option value="all">すべての野菜</option>
+        <option value="なす">なす</option>
+        <option value="トマト">トマト</option>
+        <option value="きゅうり">きゅうり</option>
+        <option value="ピーマン">ピーマン</option>
+        <option value="いちご">いちご</option>
+        <option value="とうもろこし">とうもろこし</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+
+    <div class="summary" id="summaryText">0件　TOTAL 0　今日 0</div>
+
+    <div class="bulk-area">
+      <button class="btn-confirm-all" onclick="confirmAllHarvests()">全て確定</button>
+      <button class="btn-clear-all" onclick="clearAllPending()">未確定を全取消</button>
+    </div>
+  </div>
+
+  <div class="add-box">
+    <h2>収穫データ追加</h2>
+
+    <div class="form-grid">
+      <select id="newCategory">
+        <option value="なす">🍆 なす</option>
+        <option value="トマト">🍅 トマト</option>
+        <option value="きゅうり">🥒 きゅうり</option>
+        <option value="ピーマン">🌶️ ピーマン</option>
+        <option value="いちご">🍓 いちご</option>
+        <option value="とうもろこし">🌽 とうもろこし</option>
+        <option value="その他">🌱 その他</option>
+      </select>
+
+      <select id="newYear"></select>
+    </div>
+
+    <div class="form-full">
+      <input id="newName" type="text" placeholder="品目名　例：黒陽">
+    </div>
+
+    <div class="form-grid">
+      <input id="newTotal" type="number" placeholder="TOTAL　例：0">
+      <input id="newToday" type="number" placeholder="初回収量　例：5">
+    </div>
+
+    <button class="btn-primary" onclick="addItem()">＋ 追加する</button>
+  </div>
+
+  <div class="item-list" id="itemList"></div>
+
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-item">
+    <span class="nav-icon">🏠</span>
+    ホーム
+  </div>
+  <div class="nav-item active">
+    <span class="nav-icon">📋</span>
+    収穫一覧
+  </div>
+  <div class="nav-item" onclick="scrollToAddBox()">
+    <span class="nav-icon">➕</span>
+    追加
+  </div>
+  <div class="nav-item" onclick="openAllHistory()">
+    <span class="nav-icon">📊</span>
+    履歴
+  </div>
+</div>
+
+<div class="modal-bg" id="editModalBg">
+  <div class="modal">
+    <h2>編集</h2>
+
+    <div class="form-full">
+      <input id="editName" type="text" placeholder="品目名">
+    </div>
+
+    <div class="form-grid">
+      <select id="editCategory">
+        <option value="なす">🍆 なす</option>
+        <option value="トマト">🍅 トマト</option>
+        <option value="きゅうり">🥒 きゅうり</option>
+        <option value="ピーマン">🌶️ ピーマン</option>
+        <option value="いちご">🍓 いちご</option>
+        <option value="とうもろこし">🌽 とうもろこし</option>
+        <option value="その他">🌱 その他</option>
+      </select>
+
+      <select id="editYear"></select>
+    </div>
+
+    <div class="form-grid">
+      <input id="editTotal" type="number" placeholder="TOTAL">
+      <input id="editDateAmount" type="number" placeholder="記録日の収量">
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn-gray" onclick="closeEdit()">キャンセル</button>
+      <button class="btn-primary" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="historyModalBg">
+  <div class="modal">
+    <h2 id="historyTitle">収穫履歴</h2>
+    <div id="historyContent"></div>
+
+    <div class="modal-buttons">
+      <button class="btn-gray" onclick="closeHistory()">閉じる</button>
+      <button class="btn-primary" onclick="openAllHistory()">全履歴</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="settingsModalBg">
+  <div class="modal">
+    <h2>設定</h2>
+
+    <button class="btn-primary" onclick="exportData()">データをコピー表示</button>
+    <br><br>
+    <button class="btn-delete" style="width:100%;" onclick="resetData()">入力データだけ初期化</button>
+
+    <div class="modal-buttons">
+      <button class="btn-gray" onclick="closeSettings()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = "yasaiHarvestPwaStep3V1";
+
+  let items = [];
+  let editingId = null;
+  let sortMode = "totalDesc";
+  let viewMode = "all";
+
+  const PAST_BASE_ITEMS = [
+    makeItem(2025, "なす", "黒陽", 80, []),
+    makeItem(2025, "なす", "千両二号", 75, []),
+    makeItem(2025, "ピーマン", "京みどり", 160, []),
+    makeItem(2025, "ピーマン", "ニューエース", 78, []),
+    makeItem(2025, "きゅうり", "シャキット", 32, []),
+    makeItem(2025, "きゅうり", "うどんこつよし", 1, []),
+    makeItem(2025, "きゅうり", "千波", 7, []),
+    makeItem(2025, "きゅうり", "夏いづみ", 10, []),
+    makeItem(2025, "トマト", "千果", 113, []),
+    makeItem(2025, "トマト", "イエローアイコ", 78, []),
+    makeItem(2025, "トマト", "ぷるるん", 58, []),
+    makeItem(2025, "トマト", "桃太郎", 6, []),
+
+    makeItem(2024, "なす", "黒陽", 16, []),
+    makeItem(2024, "なす", "ふわとろなが", 25, []),
+    makeItem(2024, "ピーマン", "ニューエース", 23, []),
+    makeItem(2024, "ピーマン", "京波", 48, []),
+    makeItem(2024, "きゅうり", "秋きゅうり", 7, []),
+    makeItem(2024, "きゅうり", "夏いづみ", 14, []),
+    makeItem(2024, "きゅうり", "強健豊作", 14, []),
+    makeItem(2024, "きゅうり", "風神", 10, []),
+    makeItem(2024, "トマト", "こあまちゃん", 138, []),
+    makeItem(2024, "トマト", "純あま", 251, []),
+    makeItem(2024, "トマト", "イエローアイコ", 62, []),
+    makeItem(2024, "トマト", "桃太郎", 12, []),
+
+    makeItem(2023, "なす", "中長", 12, []),
+    makeItem(2023, "なす", "でかまる", 7, []),
+    makeItem(2023, "なす", "丸なす", 11, []),
+    makeItem(2023, "きゅうり", "強健豊作", 10, []),
+    makeItem(2023, "きゅうり", "夏ふうみ", 10, []),
+    makeItem(2023, "トマト", "こあまちゃん", 93, []),
+    makeItem(2023, "トマト", "純あま", 155, [])
+  ];
+
+  const DEFAULT_CURRENT_ITEMS = [
+    makeItem(2026, "きゅうり", "シャキット", 0, []),
+    makeItem(2026, "きゅうり", "夏いづみ", 0, []),
+
+    makeItem(2026, "なす", "黒陽", 0, []),
+    makeItem(2026, "なす", "千両二号", 0, []),
+
+    makeItem(2026, "トマト", "ぷるるん", 0, []),
+    makeItem(2026, "トマト", "千果", 0, []),
+    makeItem(2026, "トマト", "ミラクルリッチオレンジ", 0, []),
+
+    makeItem(2026, "ピーマン", "京みどり", 0, []),
+    makeItem(2026, "ピーマン", "ニューエース", 0, [])
+  ];
+
+  function todayString() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function getRecordDate() {
+    const input = document.getElementById("globalRecordDate");
+    if (input && input.value) {
+      return input.value;
+    }
+    return todayString();
+  }
+
+  function getCurrentYear() {
+    return new Date().getFullYear();
+  }
+
+  function isEditableYear(year) {
+    return Number(year) >= 2026;
+  }
+
+  function getIcon(category) {
+    if (category === "なす") return "🍆";
+    if (category === "トマト") return "🍅";
+    if (category === "きゅうり") return "🥒";
+    if (category === "ピーマン") return "🌶️";
+    if (category === "いちご") return "🍓";
+    if (category === "とうもろこし") return "🌽";
+    return "🌱";
+  }
+
+  function removeIcon(name) {
+    return name
+      .replace(/^🍆\s*/, "")
+      .replace(/^🍅\s*/, "")
+      .replace(/^🥒\s*/, "")
+      .replace(/^🫑\s*/, "")
+      .replace(/^🌶️\s*/, "")
+      .replace(/^🍓\s*/, "")
+      .replace(/^🌽\s*/, "")
+      .replace(/^🌱\s*/, "");
+  }
+
+  function formatDate(dateText) {
+    if (!dateText) return "";
+    const parts = String(dateText).split("-");
+    if (parts.length === 3) {
+      return `${Number(parts[1])}.${Number(parts[2])}`;
+    }
+    return dateText;
+  }
+
+  function formatDateLong(dateText) {
+    if (!dateText) return "";
+    const parts = String(dateText).split("-");
+    if (parts.length === 3) {
+      return `${parts[0]}年${Number(parts[1])}月${Number(parts[2])}日`;
+    }
+    return dateText;
+  }
+
+  function makeItem(year, category, name, total, history) {
+    const cleanCategory = category === "とまと" ? "トマト" : category;
+    const icon = getIcon(cleanCategory);
+
+    return {
+      id: `${year}-${cleanCategory}-${name}`,
+      name: `${icon} ${name}`,
+      category: cleanCategory,
+      year: Number(year),
+      total: Number(total),
+      pending: {},
+      history: history || []
+    };
+  }
+
+  function cloneItem(item) {
+    return JSON.parse(JSON.stringify(item));
+  }
+
+  function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      const savedItems = JSON.parse(saved);
+
+      const editableItems = savedItems
+        .filter(item => isEditableYear(item.year))
+        .map(item => {
+          if (!item.history) item.history = [];
+          if (!item.pending) item.pending = {};
+          return item;
+        });
+
+      const editableIds = new Set(editableItems.map(item => item.id));
+
+      DEFAULT_CURRENT_ITEMS.forEach(baseItem => {
+        if (!editableIds.has(baseItem.id)) {
+          editableItems.push(cloneItem(baseItem));
+        }
+      });
+
+      items = [
+        ...PAST_BASE_ITEMS.map(cloneItem),
+        ...editableItems
+      ];
+
+      saveData();
+      return;
+    }
+
+    items = [
+      ...PAST_BASE_ITEMS.map(cloneItem),
+      ...DEFAULT_CURRENT_ITEMS.map(cloneItem)
+    ];
+
+    saveData();
+  }
+
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  function getPendingTotal(item) {
+    if (!item.pending) item.pending = {};
+
+    return Object.values(item.pending)
+      .reduce((sum, value) => sum + Number(value || 0), 0);
+  }
+
+  function getPendingAmountByDate(item, date) {
+    if (!item.pending) item.pending = {};
+    return Number(item.pending[date] || 0);
+  }
+
+  function hasAnyPending() {
+    return items.some(item => isEditableYear(item.year) && getPendingTotal(item) !== 0);
+  }
+
+  function updateWarningBar() {
+    const warningBar = document.getElementById("warningBar");
+    if (!warningBar) return;
+
+    if (hasAnyPending()) {
+      warningBar.classList.add("show");
+    } else {
+      warningBar.classList.remove("show");
+    }
+  }
+
+  function getDisplayTotal(item) {
+    if (!isEditableYear(item.year)) {
+      return Number(item.total || 0);
+    }
+
+    return Number(item.total || 0) + getPendingTotal(item);
+  }
+
+  function getConfirmedAmountByDate(item, date) {
+    if (!item.history) item.history = [];
+
+    return item.history
+      .filter(h => h.date === date)
+      .reduce((sum, h) => sum + Number(h.amount || 0), 0);
+  }
+
+  function getAmountByDate(item, date) {
+    return getConfirmedAmountByDate(item, date);
+  }
+
+  function getDisplayAmountByDate(item, date) {
+    if (!isEditableYear(item.year)) {
+      return 0;
+    }
+
+    return getConfirmedAmountByDate(item, date) + getPendingAmountByDate(item, date);
+  }
+
+  function buildYearOptions() {
+    const yearFilter = document.getElementById("yearFilter");
+    const newYear = document.getElementById("newYear");
+    const editYear = document.getElementById("editYear");
+
+    const currentYear = getCurrentYear();
+
+    yearFilter.innerHTML = `<option value="all">すべての年</option>`;
+    newYear.innerHTML = "";
+    editYear.innerHTML = "";
+
+    for (let y = currentYear + 1; y >= 2022; y--) {
+      yearFilter.innerHTML += `<option value="${y}">${y}年</option>`;
+      newYear.innerHTML += `<option value="${y}">${y}年</option>`;
+      editYear.innerHTML += `<option value="${y}">${y}年</option>`;
+    }
+
+    yearFilter.value = String(currentYear);
+    newYear.value = String(currentYear);
+  }
+
+  function setViewMode(mode) {
+    viewMode = mode;
+
+    document.getElementById("viewAllBtn").classList.remove("active");
+    document.getElementById("viewTodayBtn").classList.remove("active");
+    document.getElementById("viewPendingBtn").classList.remove("active");
+
+    if (mode === "all") {
+      document.getElementById("viewAllBtn").classList.add("active");
+    } else if (mode === "today") {
+      document.getElementById("viewTodayBtn").classList.add("active");
+    } else if (mode === "pending") {
+      document.getElementById("viewPendingBtn").classList.add("active");
+    }
+
+    renderList();
+  }
+
+  function renderList() {
+    const list = document.getElementById("itemList");
+    const searchText = document.getElementById("searchInput").value.trim().toLowerCase();
+    const yearFilter = document.getElementById("yearFilter").value;
+    const categoryFilter = document.getElementById("categoryFilter").value;
+    const recordDate = getRecordDate();
+
+    let filtered = items.filter(item => {
+      const matchName = item.name.toLowerCase().includes(searchText);
+      const matchYear = yearFilter === "all" || String(item.year) === String(yearFilter);
+      const matchCategory = categoryFilter === "all" || item.category === categoryFilter;
+
+      let matchView = true;
+
+      if (viewMode === "today") {
+        matchView = getDisplayAmountByDate(item, recordDate) > 0;
+      }
+
+      if (viewMode === "pending") {
+        matchView = getPendingTotal(item) !== 0;
+      }
+
+      return matchName && matchYear && matchCategory && matchView;
+    });
+
+    filtered.sort((a, b) => {
+      if (sortMode === "totalDesc") {
+        return getDisplayTotal(b) - getDisplayTotal(a);
+      }
+
+      if (sortMode === "totalAsc") {
+        return getDisplayTotal(a) - getDisplayTotal(b);
+      }
+
+      return a.name.localeCompare(b.name, "ja");
+    });
+
+    const totalSum = filtered.reduce((sum, item) => sum + getDisplayTotal(item), 0);
+    const todaySum = filtered.reduce((sum, item) => sum + getDisplayAmountByDate(item, recordDate), 0);
+    const pendingSum = filtered.reduce((sum, item) => {
+      if (!isEditableYear(item.year)) return sum;
+      return sum + getPendingTotal(item);
+    }, 0);
+
+    document.getElementById("summaryText").innerHTML =
+      `${filtered.length}件　TOTAL ${totalSum.toLocaleString()}<br>記録日 ${formatDate(recordDate)}：${todaySum.toLocaleString()}　未確定 ${pendingSum.toLocaleString()}`;
+
+    list.innerHTML = "";
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty">データがありません</div>`;
+      updateWarningBar();
+      return;
+    }
+
+    filtered.forEach(item => {
+      if (!item.pending) item.pending = {};
+
+      const editable = isEditableYear(item.year);
+      const todayAmount = getDisplayAmountByDate(item, recordDate);
+      const pendingTotal = editable ? getPendingTotal(item) : 0;
+
+      const recentHistory = [...(item.history || [])]
+        .slice()
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+        .slice(0, 3)
+        .map(h => `
+          <div class="history-line">
+            <span>${formatDate(h.date)}</span>
+            <span class="${Number(h.amount) >= 0 ? "history-plus" : "history-minus"}">
+              ${Number(h.amount) > 0 ? "+" : ""}${h.amount}
+            </span>
+          </div>
+        `)
+        .join("");
+
+      const card = document.createElement("div");
+      card.className = editable ? "item-card" : "item-card locked";
+
+      let middleBoxes = "";
+
+      if (editable) {
+        middleBoxes = `
+          <div class="total-today-row">
+            <div class="total-box">
+              <div class="total-label">TOTAL</div>
+              <div class="total-number">${getDisplayTotal(item).toLocaleString()}</div>
+            </div>
+
+            <div class="today-box ${todayAmount > 0 ? "active" : ""}">
+              <div class="today-label">${formatDate(recordDate)}</div>
+              <div class="today-number">${todayAmount.toLocaleString()}</div>
+            </div>
+
+            <div class="pending-box ${pendingTotal !== 0 ? "active" : ""}">
+              <div class="pending-label">未確定</div>
+              <div class="pending-number">${pendingTotal.toLocaleString()}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        middleBoxes = `
+          <div class="total-today-row">
+            <div class="total-box">
+              <div class="total-label">TOTAL</div>
+              <div class="total-number">${Number(item.total || 0).toLocaleString()}</div>
+            </div>
+
+            <div class="locked-box">
+              <div class="locked-label">区分</div>
+              <div class="locked-number">過去</div>
+            </div>
+
+            <div class="locked-box">
+              <div class="locked-label">固定</div>
+              <div class="locked-number">CSV</div>
+            </div>
+          </div>
+        `;
+      }
+
+      let operationButtons = "";
+
+      if (editable) {
+        operationButtons = `
+          <div class="big-action-row">
+            <button class="btn-plus-big" onclick="plusOne('${item.id}')">＋</button>
+            <button class="btn-minus-big" onclick="minusOne('${item.id}')">－</button>
+            <button class="btn-confirm" onclick="confirmHarvest('${item.id}')">確定</button>
+          </div>
+
+          <div class="sub-action-row">
+            <button class="btn-edit" onclick="openEdit('${item.id}')">編集</button>
+            <button class="btn-gray" onclick="showHistory('${item.id}')">履歴</button>
+            <button class="btn-delete" onclick="deleteItem('${item.id}')">削除</button>
+          </div>
+
+          <div class="sub-action-row two">
+            <button class="btn-gray" onclick="clearPending('${item.id}')">未確定取消</button>
+            <button class="btn-gray" onclick="openAllHistory()">全履歴</button>
+          </div>
+        `;
+      } else {
+        operationButtons = `
+          <div class="sub-action-row two">
+            <button class="btn-gray" onclick="showHistory('${item.id}')">確認</button>
+            <button class="btn-gray" onclick="openAllHistory()">全履歴</button>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="item-name">${item.name}</div>
+
+        ${middleBoxes}
+
+        <div class="meta">
+          ${item.year}年 / ${item.category}
+          ${editable ? "" : `<br><span class="past-label">添付CSVの過去基本データ：変更不可</span>`}
+        </div>
+
+        ${operationButtons}
+
+        <div class="history-box">
+          <div class="history-title">${editable ? "最近の確定済み履歴" : "過去基本データ"}</div>
+          ${recentHistory || (editable ? "まだ確定済みの記録はありません" : "年間TOTALのみ登録済み")}
+        </div>
+      `;
+
+      list.appendChild(card);
+    });
+
+    updateWarningBar();
+  }
+
+  function addItem() {
+    const category = document.getElementById("newCategory").value;
+    const year = Number(document.getElementById("newYear").value);
+    let name = document.getElementById("newName").value.trim();
+    const total = Number(document.getElementById("newTotal").value || 0);
+    const firstAmount = Number(document.getElementById("newToday").value || 0);
+    const date = getRecordDate();
+
+    if (!name) {
+      alert("品目名を入力してください。例：黒陽");
+      return;
+    }
+
+    if (!isEditableYear(year)) {
+      alert("2025年以前は添付CSVの固定データです。新規追加は2026年以降にしてください。");
+      return;
+    }
+
+    if (isNaN(total) || isNaN(firstAmount)) {
+      alert("TOTALと初回収量は数字で入力してください。");
+      return;
+    }
+
+    const icon = getIcon(category);
+
+    if (!name.startsWith(icon)) {
+      name = `${icon} ${name}`;
+    }
+
+    const history = [];
+
+    if (firstAmount !== 0) {
+      history.push({
+        date: date,
+        amount: firstAmount
+      });
+    }
+
+    items.push({
+      id: `${year}-${category}-${removeIcon(name)}-${Date.now()}`,
+      name,
+      category,
+      year,
+      total,
+      pending: {},
+      history
+    });
+
+    saveData();
+
+    document.getElementById("newName").value = "";
+    document.getElementById("newTotal").value = "";
+    document.getElementById("newToday").value = "";
+
+    document.getElementById("yearFilter").value = String(year);
+    document.getElementById("categoryFilter").value = category;
+
+    renderList();
+  }
+
+  function addPending(id, amount) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    if (!isEditableYear(item.year)) {
+      alert("2025年以前のデータは添付CSV固定データのため、収量追加はできません。");
+      return;
+    }
+
+    const date = getRecordDate();
+
+    if (!item.pending) {
+      item.pending = {};
+    }
+
+    item.pending[date] = Number(item.pending[date] || 0) + Number(amount);
+
+    if (item.pending[date] === 0) {
+      delete item.pending[date];
+    }
+
+    saveData();
+    renderList();
+  }
+
+  function plusOne(id) {
+    addPending(id, 1);
+  }
+
+  function minusOne(id) {
+    addPending(id, -1);
+  }
+
+  function confirmHarvest(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    if (!isEditableYear(item.year)) {
+      alert("2025年以前のデータは固定データのため、確定処理は不要です。");
+      return;
+    }
+
+    if (!item.pending) {
+      item.pending = {};
+    }
+
+    const entries = Object.entries(item.pending)
+      .filter(([date, amount]) => Number(amount) !== 0);
+
+    if (entries.length === 0) {
+      alert("未確定の収穫がありません。");
+      return;
+    }
+
+    entries.forEach(([date, amount]) => {
+      const num = Number(amount);
+
+      item.history.push({
+        date: date,
+        amount: num
+      });
+
+      item.total = Number(item.total || 0) + num;
+    });
+
+    item.pending = {};
+
+    saveData();
+    renderList();
+
+    alert(`${item.name} の収穫を確定しました。`);
+  }
+
+  function confirmAllHarvests() {
+    const pendingItems = items.filter(item => isEditableYear(item.year) && getPendingTotal(item) !== 0);
+
+    if (pendingItems.length === 0) {
+      alert("未確定の収穫はありません。");
+      return;
+    }
+
+    if (!confirm(`未確定の収穫をすべて確定しますか？\n対象：${pendingItems.length}件`)) {
+      return;
+    }
+
+    pendingItems.forEach(item => {
+      const entries = Object.entries(item.pending)
+        .filter(([date, amount]) => Number(amount) !== 0);
+
+      entries.forEach(([date, amount]) => {
+        const num = Number(amount);
+
+        item.history.push({
+          date: date,
+          amount: num
+        });
+
+        item.total = Number(item.total || 0) + num;
+      });
+
+      item.pending = {};
+    });
+
+    saveData();
+    renderList();
+
+    alert("すべての未確定収穫を確定しました。");
+  }
+
+  function clearPending(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    if (!isEditableYear(item.year)) {
+      alert("2025年以前のデータには未確定はありません。");
+      return;
+    }
+
+    if (getPendingTotal(item) === 0) {
+      alert("未確定の収穫はありません。");
+      return;
+    }
+
+    if (!confirm(`${item.name} の未確定分を取り消しますか？`)) {
+      return;
+    }
+
+    item.pending = {};
+    saveData();
+    renderList();
+  }
+
+  function clearAllPending() {
+    const pendingItems = items.filter(item => isEditableYear(item.year) && getPendingTotal(item) !== 0);
+
+    if (pendingItems.length === 0) {
+      alert("未確定の収穫はありません。");
+      return;
+    }
+
+    if (!confirm(`すべての未確定分を取り消しますか？\n対象：${pendingItems.length}件`)) {
+      return;
+    }
+
+    pendingItems.forEach(item => {
+      item.pending = {};
+    });
+
+    saveData();
+    renderList();
+  }
+
+  function openEdit(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    if (!isEditableYear(item.year)) {
+      alert("2025年以前は添付CSVの固定データです。変更できません。");
+      return;
+    }
+
+    editingId = id;
+
+    const recordDate = getRecordDate();
+
+    document.getElementById("editName").value = removeIcon(item.name);
+    document.getElementById("editCategory").value = item.category;
+    document.getElementById("editYear").value = item.year;
+    document.getElementById("editTotal").value = item.total;
+    document.getElementById("editDateAmount").value = getAmountByDate(item, recordDate);
+
+    document.getElementById("editModalBg").style.display = "flex";
+  }
+
+  function closeEdit() {
+    document.getElementById("editModalBg").style.display = "none";
+    editingId = null;
+  }
+
+  function saveEdit() {
+    const item = items.find(i => i.id === editingId);
+    if (!item) return;
+
+    if (!isEditableYear(item.year)) {
+      alert("2025年以前は添付CSVの固定データです。変更できません。");
+      return;
+    }
+
+    const category = document.getElementById("editCategory").value;
+    const icon = getIcon(category);
+    let name = document.getElementById("editName").value.trim();
+
+    if (!name) {
+      alert("品目名を入力してください。");
+      return;
+    }
+
+    item.name = `${icon} ${name}`;
+    item.category = category;
+    item.year = Number(document.getElementById("editYear").value);
+    item.total = Number(document.getElementById("editTotal").value || 0);
+
+    const editDate = getRecordDate();
+    const newAmountForDate = Number(document.getElementById("editDateAmount").value || 0);
+    const oldAmountForDate = getAmountByDate(item, editDate);
+    const diff = newAmountForDate - oldAmountForDate;
+
+    if (diff !== 0) {
+      if (!item.history) {
+        item.history = [];
+      }
+
+      item.history.push({
+        date: editDate,
+        amount: diff
+      });
+
+      item.total = Number(item.total || 0) + diff;
+    }
+
+    if (!item.pending) {
+      item.pending = {};
+    }
+
+    saveData();
+    closeEdit();
+    renderList();
+  }
+
+  function deleteItem(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    if (!isEditableYear(item.year)) {
+      alert("2025年以前は添付CSVの固定データです。削除できません。");
+      return;
+    }
+
+    if (!confirm(`${item.name} を削除しますか？`)) {
+      return;
+    }
+
+    items = items.filter(i => i.id !== id);
+    saveData();
+    renderList();
+  }
+
+  function showHistory(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("historyTitle").textContent = `${item.name} の収穫履歴`;
+
+    if (!item.history || item.history.length === 0) {
+      if (isEditableYear(item.year)) {
+        document.getElementById("historyContent").innerHTML =
+          `<div class="empty">確定済み履歴はまだありません</div>`;
+      } else {
+        document.getElementById("historyContent").innerHTML =
+          `<div class="empty">この年は添付CSVの固定データです。<br>TOTAL ${Number(item.total || 0).toLocaleString()} として登録されています。</div>`;
+      }
+
+      document.getElementById("historyModalBg").style.display = "flex";
+      return;
+    }
+
+    const rows = groupHistoryByDate([item]);
+
+    document.getElementById("historyContent").innerHTML = buildHistoryTable(rows, false);
+    document.getElementById("historyModalBg").style.display = "flex";
+  }
+
+  function openAllHistory() {
+    document.getElementById("historyTitle").textContent = "全収穫履歴";
+
+    const rows = groupHistoryByDate(items);
+
+    if (rows.length === 0) {
+      document.getElementById("historyContent").innerHTML =
+        `<div class="empty">確定済み履歴はまだありません</div>`;
+    } else {
+      document.getElementById("historyContent").innerHTML = buildHistoryTable(rows, true);
+    }
+
+    document.getElementById("historyModalBg").style.display = "flex";
+  }
+
+  function closeHistory() {
+    document.getElementById("historyModalBg").style.display = "none";
+  }
+
+  function groupHistoryByDate(targetItems) {
+    const rows = [];
+
+    targetItems.forEach(item => {
+      if (!item.history) return;
+
+      item.history.forEach(h => {
+        rows.push({
+          date: h.date,
+          name: item.name,
+          category: item.category,
+          year: item.year,
+          amount: Number(h.amount || 0)
+        });
+      });
+    });
+
+    rows.sort((a, b) => {
+      const dateCompare = String(b.date).localeCompare(String(a.date));
+      if (dateCompare !== 0) return dateCompare;
+      return a.name.localeCompare(b.name, "ja");
+    });
+
+    return rows;
+  }
+
+  function buildHistoryTable(rows, showName) {
+    let html = `
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            ${showName ? "<th>品目</th>" : ""}
+            <th>収量</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    rows.forEach(row => {
+      html += `
+        <tr>
+          <td>${formatDateLong(row.date)}</td>
+          ${showName ? `<td>${row.name}</td>` : ""}
+          <td class="${row.amount >= 0 ? "history-plus" : "history-minus"}">
+            ${row.amount > 0 ? "+" : ""}${row.amount}
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+        </tbody>
+      </table>
+    `;
+
+    return html;
+  }
+
+  function toggleSort() {
+    if (sortMode === "totalDesc") {
+      sortMode = "totalAsc";
+      alert("TOTALの少ない順にしました。");
+    } else if (sortMode === "totalAsc") {
+      sortMode = "name";
+      alert("名前順にしました。");
+    } else {
+      sortMode = "totalDesc";
+      alert("TOTALの多い順にしました。");
+    }
+
+    renderList();
+  }
+
+  function openSettings() {
+    document.getElementById("settingsModalBg").style.display = "flex";
+  }
+
+  function closeSettings() {
+    document.getElementById("settingsModalBg").style.display = "none";
+  }
+
+  function exportData() {
+    const text = JSON.stringify(items, null, 2);
+    prompt("このデータをコピーして保存できます。", text);
+  }
+
+  function resetData() {
+    if (!confirm("2026年以降の入力データだけ初期化しますか？\n2023〜2025年の添付CSVデータは残ります。")) return;
+
+    items = [
+      ...PAST_BASE_ITEMS.map(cloneItem),
+      ...DEFAULT_CURRENT_ITEMS.map(cloneItem)
+    ];
+
+    saveData();
+    closeSettings();
+    renderList();
+  }
+
+  function scrollToAddBox() {
+    document.querySelector(".add-box").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  window.addEventListener("beforeunload", function(event) {
+    if (hasAnyPending()) {
+      event.preventDefault();
+      event.returnValue = "未確定の収穫があります。確定してから閉じてください。";
+    }
+  });
+
+  buildYearOptions();
+  loadData();
+
+  document.getElementById("globalRecordDate").value = todayString();
+
+  renderList();
+</script>
+
+<!-- PWA STEP 3：Service Worker 登録 -->
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(function() {
+          console.log("Service Worker registered");
+        })
+        .catch(function(error) {
+          console.log("Service Worker registration failed:", error);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>
