@@ -175,7 +175,7 @@
     }
 
     .backup-area {
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 
     .add-box h2 {
@@ -307,6 +307,40 @@
       line-height: 1.5;
       font-weight: 700;
     }
+
+    
+
+    .next-task-mini {
+      margin-top: 8px;
+      padding: 8px;
+      background: #fff8e8;
+      border: 1px solid #f7d6a2;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #8a4b08;
+    }
+
+    .todo-highlight {
+      background: #fff4d8;
+      border: 2px solid #f5bf42;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    .todo-title { font-weight: 900; margin-bottom: 6px; }
+
+    .diary-list, .task-list { margin-top: 10px; }
+    .diary-card, .task-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+    .task-card.done { opacity: 0.65; }
+    .chip { display:inline-block; padding:2px 8px; border-radius:999px; background:#e8f5f7; font-size:12px; font-weight:800; }
 
     .note-box {
       background: #f8fafc;
@@ -632,6 +666,7 @@
 
     <div class="backup-area">
       <button class="btn-backup" onclick="openStats()">集計</button>
+      <button class="btn-backup" onclick="openDiaryTaskModal()">日記・予定</button>
       <button class="btn-backup" onclick="exportBackupJson()">バックアップ</button>
       <button class="btn-backup" onclick="document.getElementById('restoreFileInput').click()">復元</button>
     </div>
@@ -793,6 +828,8 @@
     <br><br>
     <button class="btn-backup" style="width:100%;" onclick="exportCsv()">CSV出力</button>
     <br><br>
+    <button class="btn-primary" style="width:100%;" onclick="openDiaryTaskModal()">日記・予定を開く</button>
+    <br><br>
     <button class="btn-delete" style="width:100%;" onclick="resetData()">2026年以降の入力データだけ初期化</button>
 
     <div class="note-box">
@@ -811,14 +848,49 @@
   </div>
 </div>
 
+
+<div class="modal-bg" id="diaryTaskModalBg">
+  <div class="modal">
+    <h2>菜園日記・追肥予定</h2>
+    <div id="todayTaskHighlight"></div>
+    <div class="form-full"><input id="diaryDate" type="date"></div>
+    <div class="form-grid">
+      <select id="diaryCategory">
+        <option>観察</option><option>水やり</option><option>追肥</option><option>剪定</option><option>誘引</option><option>収穫</option><option>病害虫</option><option>その他</option>
+      </select>
+      <input id="diaryVegetable" type="text" placeholder="対象野菜 例：トマト 千果">
+    </div>
+    <div class="form-full"><input id="diaryMemo" type="text" placeholder="メモ"></div>
+    <button class="btn-primary" onclick="addDiaryEntry()">日記を保存</button>
+
+    <hr>
+    <div class="form-grid">
+      <input id="taskVegetable" type="text" placeholder="対象野菜">
+      <input id="taskDate" type="date">
+    </div>
+    <div class="form-full"><input id="taskAction" type="text" placeholder="作業内容 例：追肥"></div>
+    <div class="form-full"><input id="taskMemo" type="text" placeholder="メモ"></div>
+    <button class="btn-primary" onclick="addTaskSchedule()">予定を追加</button>
+
+    <div class="diary-list" id="diaryList"></div>
+    <div class="task-list" id="taskList"></div>
+
+    <div class="modal-buttons"><button class="btn-gray" onclick="closeDiaryTaskModal()">閉じる</button></div>
+  </div>
+</div>
+
 <script>
   const STORAGE_KEY = "yasaiHarvestUpgradeV2";
   const INTRO_KEY = "yasaiHarvestIntroSeenV1";
+  const DIARY_KEY = "yasaiHarvestDiaryV1";
+  const TASK_KEY = "yasaiHarvestTaskScheduleV1";
 
   let items = [];
   let editingId = null;
   let sortMode = "totalDesc";
   let viewMode = "all";
+  let diaryEntries = [];
+  let taskSchedules = [];
 
   function getIcon(category) {
     if (category === "なす") return "🍆";
@@ -982,7 +1054,15 @@
 
   function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(DIARY_KEY, JSON.stringify(diaryEntries));
+    localStorage.setItem(TASK_KEY, JSON.stringify(taskSchedules));
   }
+
+  function loadDiaryTaskData() {
+    try { diaryEntries = JSON.parse(localStorage.getItem(DIARY_KEY) || '[]'); } catch { diaryEntries = []; }
+    try { taskSchedules = JSON.parse(localStorage.getItem(TASK_KEY) || '[]'); } catch { taskSchedules = []; }
+  }
+
 
   function getPendingTotal(item) {
     if (!item.pending) item.pending = {};
@@ -1057,6 +1137,16 @@
     if (mode === "pending") document.getElementById("viewPendingBtn").classList.add("active");
 
     renderList();
+  }
+
+
+  function getNextTaskForItem(item) {
+    const name = removeIcon(item.name).toLowerCase();
+    const today = todayString();
+    const cand = taskSchedules
+      .filter(t => !t.done && String(t.vegetable || '').toLowerCase().includes(name) && t.date >= today)
+      .sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
+    return cand || null;
   }
 
   function renderList() {
@@ -1185,7 +1275,7 @@
           ${item.year}年 / ${item.category}
           ${editable ? "" : `<br><span class="past-label">添付CSVの過去基本データ：変更不可</span>`}
         </div>
-        ${editable ? `<div class="memo-mini">味:${item.note?.taste || "-"} / 育てやすさ:${item.note?.ease || "-"} / 来年:${item.note?.replant || "未定"}<br>${item.note?.memo ? `メモ:${item.note.memo}` : "メモ:なし"}</div>` : ""}
+        ${editable ? `${(() => { const nt = getNextTaskForItem(item); return nt ? `<div class="next-task-mini">次回予定：${formatDate(nt.date)} ${nt.action}</div>` : ""; })()}<div class="memo-mini">味:${item.note?.taste || "-"} / 育てやすさ:${item.note?.ease || "-"} / 来年:${item.note?.replant || "未定"}<br>${item.note?.memo ? `メモ:${item.note.memo}` : "メモ:なし"}</div>` : ""}
         ${operationButtons}
         <div class="history-box">
           <div class="history-title">${editable ? "最近の確定済み履歴" : "過去基本データ"}</div>
@@ -1640,9 +1730,11 @@
   function exportBackupJson() {
     const backup = {
       app: "やさい収穫帳",
-      version: "upgrade-v2",
+      version: "upgrade-v4",
       exportedAt: new Date().toISOString(),
-      items: items.filter(item => isEditableYear(item.year))
+      items: items.filter(item => isEditableYear(item.year)),
+      diaryEntries,
+      taskSchedules
     };
 
     downloadTextFile(
@@ -1668,6 +1760,9 @@
           return;
         }
 
+        const importedDiary = Array.isArray(data.diaryEntries) ? data.diaryEntries : [];
+        const importedTasks = Array.isArray(data.taskSchedules) ? data.taskSchedules : [];
+
         const editableItems = importedItems
           .filter(item => isEditableYear(item.year))
           .map(normalizeItem);
@@ -1678,6 +1773,8 @@
           ...PAST_BASE_ITEMS.map(cloneItem),
           ...editableItems
         ];
+        diaryEntries = importedDiary;
+        taskSchedules = importedTasks;
 
         saveData();
         renderList();
@@ -1694,19 +1791,22 @@
 
   function exportCsv() {
     const rows = [
-      ["年", "カテゴリ", "品目", "TOTAL", "履歴日付", "履歴収量"]
+      ["種別", "年", "カテゴリ", "品目", "TOTAL", "履歴日付", "履歴収量", "メモ", "状態"]
     ];
 
     items.forEach(item => {
       const cleanName = removeIcon(item.name);
       if (!item.history || item.history.length === 0) {
-        rows.push([item.year, item.category, cleanName, getDisplayTotal(item), "", ""]);
+        rows.push(["harvest", item.year, item.category, cleanName, getDisplayTotal(item), "", "", "", ""]);
       } else {
         item.history.forEach(h => {
-          rows.push([item.year, item.category, cleanName, getDisplayTotal(item), h.date, h.amount]);
+          rows.push(["harvest", item.year, item.category, cleanName, getDisplayTotal(item), h.date, h.amount, "", ""]);
         });
       }
     });
+
+    diaryEntries.forEach(d => rows.push(["diary", "", d.category, d.vegetable, "", d.date, "", d.memo || "", ""]));
+    taskSchedules.forEach(t => rows.push(["task", "", "", t.vegetable, "", t.date, "", `${t.action} ${t.memo||""}`.trim(), t.done ? "完了" : "未完了"]));
 
     const csv = rows.map(row =>
       row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(",")
@@ -1762,6 +1862,45 @@
     document.getElementById("settingsModalBg").style.display = "none";
   }
 
+  function openDiaryTaskModal() {
+    document.getElementById("diaryTaskModalBg").style.display = "flex";
+    document.getElementById("diaryDate").value = getRecordDate();
+    document.getElementById("taskDate").value = getRecordDate();
+    renderDiaryTaskModal();
+  }
+  function closeDiaryTaskModal() { document.getElementById("diaryTaskModalBg").style.display = "none"; }
+
+  function addDiaryEntry() {
+    const date = document.getElementById("diaryDate").value || todayString();
+    const category = document.getElementById("diaryCategory").value;
+    const vegetable = document.getElementById("diaryVegetable").value.trim();
+    const memo = document.getElementById("diaryMemo").value.trim();
+    if (!vegetable) return alert("対象野菜を入力してください。");
+    diaryEntries.unshift({ id: Date.now().toString(), date, category, vegetable, memo });
+    saveData(); renderDiaryTaskModal();
+  }
+  function addTaskSchedule() {
+    const vegetable = document.getElementById("taskVegetable").value.trim();
+    const date = document.getElementById("taskDate").value || todayString();
+    const action = document.getElementById("taskAction").value.trim();
+    const memo = document.getElementById("taskMemo").value.trim();
+    if (!vegetable || !action) return alert("対象野菜と作業内容を入力してください。");
+    taskSchedules.unshift({ id: Date.now().toString(), vegetable, date, action, memo, done: false });
+    saveData(); renderDiaryTaskModal(); renderList();
+  }
+  function markTaskDone(id) {
+    const t = taskSchedules.find(x=>x.id===id); if (!t) return; t.done = true;
+    saveData(); renderDiaryTaskModal(); renderList();
+  }
+  function renderDiaryTaskModal() {
+    const today = todayString();
+    const due = taskSchedules.filter(t => !t.done && t.date <= today).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    document.getElementById("todayTaskHighlight").innerHTML = due.length ? `<div class="todo-highlight"><div class="todo-title">今日の予定・未完了</div>${due.map(t=>`<div>${formatDateLong(t.date)} ${t.vegetable} / ${t.action}</div>`).join("")}</div>` : "";
+    document.getElementById("diaryList").innerHTML = `<h3>日記一覧</h3>` + (diaryEntries.length ? diaryEntries.map(d=>`<div class="diary-card"><div><strong>${formatDateLong(d.date)}</strong> <span class="chip">${d.category}</span></div><div>${d.vegetable}</div><div>${d.memo || ""}</div></div>`).join("") : `<div class="empty">日記はまだありません</div>`);
+    document.getElementById("taskList").innerHTML = `<h3>追肥予定表</h3>` + (taskSchedules.length ? taskSchedules.sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(t=>`<div class="task-card ${t.done?"done":""}"><div><strong>${formatDateLong(t.date)}</strong> ${t.vegetable}</div><div>${t.action}</div><div>${t.memo || ""}</div>${t.done?"<div class='chip'>完了済み</div>":`<button class="btn-confirm-all" onclick="markTaskDone('${t.id}')">完了にする</button>`}</div>`).join("") : `<div class="empty">予定はまだありません</div>`);
+  }
+
+
   function resetData() {
     if (!confirm("2026年以降の入力データだけ初期化しますか？\n2023〜2025年の添付CSVデータは残ります。")) return;
 
@@ -1794,6 +1933,7 @@
   });
 
   buildYearOptions();
+  loadDiaryTaskData();
   loadData();
 
   document.getElementById("globalRecordDate").value = todayString();
