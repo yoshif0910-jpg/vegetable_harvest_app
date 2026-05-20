@@ -728,12 +728,13 @@
   <div class="modal">
     <h2>やさい収穫帳の使い方</h2>
     <div class="intro-list">
-      ① 記録日を確認します<br>
-      ② 収穫した野菜の「＋」を押します<br>
-      ③ 収穫が終わったら「全て確定」を押します<br>
-      ④ 「集計」でランキングや野菜別合計を確認できます<br>
-      ⑤ データはスマホ内に保存されます<br>
-      ⑥ 定期的に「バックアップ」を押すと安心です
+      ・収穫記録：記録日を確認して、収穫した野菜の「＋」で入力<br>
+      ・全て確定：入力が終わったら、未確定分をまとめて確定<br>
+      ・集計：ランキング・野菜別合計・評価をすぐ確認<br>
+      ・品種メモ：編集から味、育てやすさ、来年の再植え、メモを保存<br>
+      ・菜園日記：日付とカテゴリを選んで、作業や観察を記録<br>
+      ・追肥予定：作業日と内容を登録して、実施忘れを防止<br>
+      ・バックアップ：JSONを保存しておくと、機種変更時に復元できて安心
     </div>
     <div class="modal-buttons">
       <button class="btn-gray" onclick="closeIntro()">閉じる</button>
@@ -834,7 +835,8 @@
 
     <div class="note-box">
       <strong>バックアップとは</strong><br>
-      JSONバックアップは機種変更用です。新しい端末へ2026年以降の入力データを移せます。
+      「JSONバックアップ」で今の記録を1つのファイルに保存できます。<br>
+      機種変更・故障時は、そのJSONを「復元」で読み込むと2026年以降の入力データを戻せます。
     </div>
     <div class="note-box">
       <strong>復元とは</strong><br>
@@ -881,7 +883,7 @@
 
 <script>
   const STORAGE_KEY = "yasaiHarvestUpgradeV2";
-  const INTRO_KEY = "yasaiHarvestIntroSeenV1";
+  const INTRO_KEY = "yasaiHarvestIntroSeenV2";
   const DIARY_KEY = "yasaiHarvestDiaryV1";
   const TASK_KEY = "yasaiHarvestTaskScheduleV1";
 
