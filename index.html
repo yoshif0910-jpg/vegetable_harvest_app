@@ -858,14 +858,14 @@
       <select id="diaryCategory">
         <option>観察</option><option>水やり</option><option>追肥</option><option>剪定</option><option>誘引</option><option>収穫</option><option>病害虫</option><option>その他</option>
       </select>
-      <input id="diaryVegetable" type="text" placeholder="対象野菜 例：トマト 千果">
+      <select id="diaryVegetable"></select>
     </div>
     <div class="form-full"><input id="diaryMemo" type="text" placeholder="メモ"></div>
     <button class="btn-primary" onclick="addDiaryEntry()">日記を保存</button>
 
     <hr>
     <div class="form-grid">
-      <input id="taskVegetable" type="text" placeholder="対象野菜">
+      <select id="taskVegetable"></select>
       <input id="taskDate" type="date">
     </div>
     <div class="form-full"><input id="taskAction" type="text" placeholder="作業内容 例：追肥"></div>
@@ -1063,6 +1063,62 @@
     try { taskSchedules = JSON.parse(localStorage.getItem(TASK_KEY) || '[]'); } catch { taskSchedules = []; }
   }
 
+
+  
+
+  function getSelectableVegetables() {
+    const seen = new Set();
+    return items
+      .filter(item => isEditableYear(item.year))
+      .filter(item => {
+        if (seen.has(item.name)) return false;
+        seen.add(item.name);
+        return true;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, "ja"))
+      .map(item => ({ value: item.name, label: item.name }));
+  }
+
+  function setSelectValueWithFallback(selectId, value) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const target = String(value || "");
+    if ([...select.options].some(o => o.value === target)) {
+      select.value = target;
+      return;
+    }
+    if (target) {
+      const opt = document.createElement("option");
+      opt.value = target;
+      opt.textContent = target;
+      select.appendChild(opt);
+      select.value = target;
+      return;
+    }
+    select.value = "__UNSELECTED__";
+  }
+
+  function populateVegetableSelects() {
+    const options = getSelectableVegetables();
+    const presets = [
+      { value: "__ALL__", label: "全体" },
+      { value: "__UNSELECTED__", label: "未選択" }
+    ];
+
+    ["diaryVegetable", "taskVegetable"].forEach(id => {
+      const select = document.getElementById(id);
+      if (!select) return;
+      const current = select.value;
+      select.innerHTML = "";
+      [...presets, ...options].forEach(entry => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        select.appendChild(option);
+      });
+      setSelectValueWithFallback(id, current || "__UNSELECTED__");
+    });
+  }
 
   function getPendingTotal(item) {
     if (!item.pending) item.pending = {};
@@ -1866,6 +1922,7 @@
     document.getElementById("diaryTaskModalBg").style.display = "flex";
     document.getElementById("diaryDate").value = getRecordDate();
     document.getElementById("taskDate").value = getRecordDate();
+    populateVegetableSelects();
     renderDiaryTaskModal();
   }
   function closeDiaryTaskModal() { document.getElementById("diaryTaskModalBg").style.display = "none"; }
@@ -1873,19 +1930,21 @@
   function addDiaryEntry() {
     const date = document.getElementById("diaryDate").value || todayString();
     const category = document.getElementById("diaryCategory").value;
-    const vegetable = document.getElementById("diaryVegetable").value.trim();
+    const vegetable = document.getElementById("diaryVegetable").value;
     const memo = document.getElementById("diaryMemo").value.trim();
-    if (!vegetable) return alert("対象野菜を入力してください。");
+    if (!vegetable) return alert("対象野菜を選択してください。");
     diaryEntries.unshift({ id: Date.now().toString(), date, category, vegetable, memo });
+    document.getElementById("diaryVegetable").value = "__UNSELECTED__";
     saveData(); renderDiaryTaskModal();
   }
   function addTaskSchedule() {
-    const vegetable = document.getElementById("taskVegetable").value.trim();
+    const vegetable = document.getElementById("taskVegetable").value;
     const date = document.getElementById("taskDate").value || todayString();
     const action = document.getElementById("taskAction").value.trim();
     const memo = document.getElementById("taskMemo").value.trim();
     if (!vegetable || !action) return alert("対象野菜と作業内容を入力してください。");
     taskSchedules.unshift({ id: Date.now().toString(), vegetable, date, action, memo, done: false });
+    document.getElementById("taskVegetable").value = "__UNSELECTED__";
     saveData(); renderDiaryTaskModal(); renderList();
   }
   function markTaskDone(id) {
