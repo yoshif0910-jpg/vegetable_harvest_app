@@ -188,7 +188,7 @@
     button {
       border: none;
       border-radius: 10px;
-      padding: 10px;
+      padding: 12px;
       font-size: 16px;
       font-weight: 900;
       cursor: pointer;
@@ -295,6 +295,28 @@
     }
 
     .pending-box.active .pending-number { color: #b45309; }
+
+    .memo-mini {
+      margin-top: 6px;
+      padding: 8px;
+      background: #f7fbff;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #1f3b63;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .note-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
 
     .meta {
       margin-top: 5px;
@@ -541,6 +563,8 @@
       .quick-filter-btn { font-size: 13px; }
       button { font-size: 15px; }
       .backup-area { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .sub-action-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -720,6 +744,27 @@
       <input id="editDateAmount" type="number" placeholder="記録日の収量">
     </div>
 
+    
+    <div class="form-grid">
+      <select id="editTaste">
+        <option value="">味（未入力）</option>
+        <option value="1">味 1</option><option value="2">味 2</option><option value="3">味 3</option><option value="4">味 4</option><option value="5">味 5</option>
+      </select>
+      <select id="editEase">
+        <option value="">育てやすさ（未入力）</option>
+        <option value="1">育てやすさ 1</option><option value="2">育てやすさ 2</option><option value="3">育てやすさ 3</option><option value="4">育てやすさ 4</option><option value="5">育てやすさ 5</option>
+      </select>
+    </div>
+
+    <div class="form-grid">
+      <select id="editReplant">
+        <option value="未定">来年も植える：未定</option>
+        <option value="はい">来年も植える：はい</option>
+        <option value="いいえ">来年も植える：いいえ</option>
+      </select>
+      <input id="editMemo" type="text" placeholder="メモ（例：甘みが強い）">
+    </div>
+
     <div class="modal-buttons">
       <button class="btn-gray" onclick="closeEdit()">キャンセル</button>
       <button class="btn-primary" onclick="saveEdit()">保存</button>
@@ -749,6 +794,16 @@
     <button class="btn-backup" style="width:100%;" onclick="exportCsv()">CSV出力</button>
     <br><br>
     <button class="btn-delete" style="width:100%;" onclick="resetData()">2026年以降の入力データだけ初期化</button>
+
+    <div class="note-box">
+      <strong>バックアップとは</strong><br>
+      JSONバックアップは機種変更用です。新しい端末へ2026年以降の入力データを移せます。
+    </div>
+    <div class="note-box">
+      <strong>復元とは</strong><br>
+      保存したJSONを読み込んで、2026年以降の入力データを戻す機能です。
+      CSV出力はExcel確認用です（復元には使いません）。
+    </div>
 
     <div class="modal-buttons">
       <button class="btn-gray" onclick="closeSettings()">閉じる</button>
@@ -891,6 +946,7 @@
   function normalizeItem(item) {
     if (!item.history) item.history = [];
     if (!item.pending) item.pending = {};
+    if (!item.note) item.note = { taste: "", ease: "", replant: "未定", memo: "" };
     if (!item.id) item.id = `${item.year}-${item.category}-${removeIcon(item.name)}-${Date.now()}`;
     return item;
   }
@@ -1129,6 +1185,7 @@
           ${item.year}年 / ${item.category}
           ${editable ? "" : `<br><span class="past-label">添付CSVの過去基本データ：変更不可</span>`}
         </div>
+        ${editable ? `<div class="memo-mini">味:${item.note?.taste || "-"} / 育てやすさ:${item.note?.ease || "-"} / 来年:${item.note?.replant || "未定"}<br>${item.note?.memo ? `メモ:${item.note.memo}` : "メモ:なし"}</div>` : ""}
         ${operationButtons}
         <div class="history-box">
           <div class="history-title">${editable ? "最近の確定済み履歴" : "過去基本データ"}</div>
@@ -1178,7 +1235,8 @@
       year,
       total,
       pending: {},
-      history
+      history,
+      note: { taste: "", ease: "", replant: "未定", memo: "" }
     });
 
     saveData();
@@ -1322,6 +1380,10 @@
     document.getElementById("editYear").value = item.year;
     document.getElementById("editTotal").value = item.total;
     document.getElementById("editDateAmount").value = getAmountByDate(item, recordDate);
+    document.getElementById("editTaste").value = item.note?.taste || "";
+    document.getElementById("editEase").value = item.note?.ease || "";
+    document.getElementById("editReplant").value = item.note?.replant || "未定";
+    document.getElementById("editMemo").value = item.note?.memo || "";
 
     document.getElementById("editModalBg").style.display = "flex";
   }
@@ -1347,6 +1409,13 @@
     item.name = `${icon} ${name}`;
     item.category = category;
     item.year = Number(document.getElementById("editYear").value);
+    if (!isEditableYear(item.year)) { alert("2026年以降のみ編集できます。"); return; }
+    item.note = {
+      taste: document.getElementById("editTaste").value,
+      ease: document.getElementById("editEase").value,
+      replant: document.getElementById("editReplant").value || "未定",
+      memo: document.getElementById("editMemo").value.trim()
+    };
     item.total = Number(document.getElementById("editTotal").value || 0);
 
     const editDate = getRecordDate();
@@ -1530,6 +1599,34 @@
       });
     }
 
+    html += `</div>`;
+
+    const byYear = {};
+    items.forEach(item => {
+      const key = item.year <= 2025 ? String(item.year) : "2026+";
+      if (!byYear[key]) byYear[key] = 0;
+      byYear[key] += getDisplayTotal(item);
+    });
+    html += `<div class="stat-card"><h3>年別比較</h3>`;
+    ["2023","2024","2025","2026+"].forEach(y => {
+      html += `<div class="stat-row"><span>${y === "2026+" ? "2026年以降" : y+"年"}</span><span>${Number(byYear[y]||0).toLocaleString()}</span></div>`;
+    });
+    html += `</div>`;
+
+    const monthTotals = {};
+    items.filter(item => isEditableYear(item.year)).forEach(item => {
+      (item.history||[]).forEach(h => {
+        const p = String(h.date||"").split("-");
+        if (p.length === 3) {
+          const month = Number(p[1]);
+          monthTotals[month] = Number(monthTotals[month]||0) + Number(h.amount||0);
+        }
+      });
+    });
+    html += `<div class="stat-card"><h3>月別集計（2026年以降・確定済み）</h3>`;
+    const months = Object.keys(monthTotals).map(Number).sort((a,b)=>a-b);
+    if (!months.length) { html += `<div class="empty">データがありません</div>`; }
+    else { months.forEach(m => { html += `<div class="stat-row"><span>${m}月</span><span>${monthTotals[m].toLocaleString()}</span></div>`;}); }
     html += `</div>`;
 
     document.getElementById("statsContent").innerHTML = html;
