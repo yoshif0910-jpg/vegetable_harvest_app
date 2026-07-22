@@ -653,6 +653,7 @@
         <option value="ピーマン">ピーマン</option>
         <option value="いちご">いちご</option>
         <option value="とうもろこし">とうもろこし</option>
+        <option value="ゴーヤ">ゴーヤ</option>
         <option value="その他">その他</option>
       </select>
     </div>
@@ -684,6 +685,7 @@
         <option value="ピーマン">🌶️ ピーマン</option>
         <option value="いちご">🍓 いちご</option>
         <option value="とうもろこし">🌽 とうもろこし</option>
+        <option value="ゴーヤ">🌱 ゴーヤ</option>
         <option value="その他">🌱 その他</option>
       </select>
       <select id="newYear"></select>
@@ -770,6 +772,7 @@
         <option value="ピーマン">🌶️ ピーマン</option>
         <option value="いちご">🍓 いちご</option>
         <option value="とうもろこし">🌽 とうもろこし</option>
+        <option value="ゴーヤ">🌱 ゴーヤ</option>
         <option value="その他">🌱 その他</option>
       </select>
       <select id="editYear"></select>
@@ -901,6 +904,7 @@
     if (category === "ピーマン") return "🌶️";
     if (category === "いちご") return "🍓";
     if (category === "とうもろこし") return "🌽";
+    if (category === "ゴーヤ") return "🌱";
     return "🌱";
   }
 
@@ -963,7 +967,8 @@
     makeItem(2026, "トマト", "千果", 0, []),
     makeItem(2026, "トマト", "ミラクルリッチオレンジ", 0, []),
     makeItem(2026, "ピーマン", "京みどり", 0, []),
-    makeItem(2026, "ピーマン", "ニューエース", 0, [])
+    makeItem(2026, "ピーマン", "ニューエース", 0, []),
+    makeItem(2026, "ゴーヤ", "島娘", 0, [])
   ];
 
   function cloneItem(item) {
